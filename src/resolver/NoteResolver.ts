@@ -4,16 +4,19 @@ import { Note } from "../entity/Note"
 @Resolver(() => Note)
 export class NoteResolver {
   @Query(() => [Note])
-  async notes(): Promise<Note[]> {
-    return Note.find()
+  async notes(
+    @Arg("userId") userId: string
+  ): Promise<Note[]> {
+    return Note.find({ userId })
   }
 
   @Mutation(() => Note)
   async createNote(
+    @Arg("userId") userId: string,
     @Arg("title") title: string,
     @Arg("content") content: string
   ): Promise<Note> {
-    return Note.create({ title, content }).save()
+    return Note.create({ userId, title, content }).save()
   }
 
   @Mutation(() => String)

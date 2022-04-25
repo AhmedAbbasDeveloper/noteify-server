@@ -15,7 +15,7 @@ import { createConnection } from "typeorm"
     context: ({ req, res }) => ({ req, res })
   })
 
-  await apolloServer.start();
+  await apolloServer.start()
   apolloServer.applyMiddleware({ app })
 
   const PORT = process.env.PORT || 4000
