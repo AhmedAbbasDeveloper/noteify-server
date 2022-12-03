@@ -22,6 +22,25 @@ export const createNote = async (req, res) => {
   }
 };
 
+export const updateNote = async (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  if (!title && !content) {
+    return res.status(400).send({ message: 'Please add a title or content to your note.' });
+  }
+
+  try {
+    return res.send(await Note.findOneAndUpdate(
+      { _id: id, userId: req.user._id },
+      { title, content },
+      { new: true },
+    ));
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
 export const deleteNote = async (req, res) => {
   const { id } = req.params;
 
