@@ -16,6 +16,6 @@ connect(process.env.DATABASE_URL);
 app.use('/users', userRoutes);
 app.use('/notes', noteRoutes);
 
-app.listen(4000, () => {
-  console.log('Server running on port 4000.');
+app.listen(process.env.PORT, () => {
+  console.log('Server started successfully.');
 });
