@@ -1,8 +1,8 @@
 import Note from '../models/note.js';
 
-export const getNotes = async (_req, res) => {
+export const getNotes = async (req, res) => {
   try {
-    return res.send(await Note.find().sort({ createdAt: 'asc' }));
+    return res.send(await Note.find({ userId: req.user._id }).sort({ createdAt: 'asc' }));
   } catch (error) {
     return res.status(500).send(error);
   }
@@ -16,7 +16,7 @@ export const createNote = async (req, res) => {
   }
 
   try {
-    return res.send(await Note.create({ title, content }));
+    return res.send(await Note.create({ title, content, userId: req.user._id }));
   } catch (error) {
     return res.status(500).send(error);
   }
@@ -26,7 +26,7 @@ export const deleteNote = async (req, res) => {
   const { id } = req.params;
 
   try {
-    return res.send(await Note.findByIdAndDelete(id));
+    return res.send(await Note.findOneAndDelete({ _id: id, userId: req.user._id }));
   } catch (error) {
     return res.status(500).send(error);
   }
