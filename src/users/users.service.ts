@@ -10,6 +10,10 @@ import { CreateUserDto } from './dto';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  async findOne(id: string): Promise<UserDocument> {
+    return await this.userModel.findById(id);
+  }
+
   async findByEmail(email: string): Promise<UserDocument | undefined> {
     const lowerCaseEmail = email.toLowerCase();
     return await this.userModel.findOne({ email: lowerCaseEmail });
