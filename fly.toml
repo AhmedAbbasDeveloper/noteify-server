@@ -1,4 +1,4 @@
-# fly.toml file generated for noteify-server on 2022-11-13T20:12:31-05:00
+# fly.toml file generated for noteify-server on 2022-12-26T02:31:02-05:00
 
 app = "noteify-server"
 kill_signal = "SIGINT"

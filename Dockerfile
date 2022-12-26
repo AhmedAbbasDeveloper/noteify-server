@@ -1,32 +1,28 @@
-FROM debian:bullseye as builder
+FROM node:16-alpine as builder
 
-ARG NODE_VERSION=16.15.0
+ENV NODE_ENV build
 
-RUN apt-get update; apt install -y curl
-RUN curl https://get.volta.sh | bash
-ENV VOLTA_HOME /root/.volta
-ENV PATH /root/.volta/bin:$PATH
-RUN volta install node@${NODE_VERSION}
+USER node
+WORKDIR /home/node
 
-#######################################################################
+COPY package*.json ./
+RUN npm ci
 
-RUN mkdir /app
-WORKDIR /app
+COPY --chown=node:node . .
+RUN npm run build \
+    && npm prune --production
+
+# ---
+
+FROM node:16-alpine
 
 ENV NODE_ENV production
 
-COPY . .
+USER node
+WORKDIR /home/node
 
-RUN npm install
-FROM debian:bullseye
+COPY --from=builder --chown=node:node /home/node/package*.json ./
+COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
 
-LABEL fly_launch_runtime="nodejs"
-
-COPY --from=builder /root/.volta /root/.volta
-COPY --from=builder /app /app
-
-WORKDIR /app
-ENV NODE_ENV production
-ENV PATH /root/.volta/bin:$PATH
-
-CMD [ "npm", "run", "start" ]
+CMD ["node", "dist/main.js"]
