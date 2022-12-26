@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Request,
   UseGuards,
@@ -15,7 +16,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { NoteDocument } from './note.schema';
 import { NotesService } from './notes.service';
 
-import { CreateNoteDto } from './dto';
+import { CreateNoteDto, UpdateNoteDto } from './dto';
 
 @Controller('notes')
 export class NotesController {
@@ -35,6 +36,27 @@ export class NotesController {
   ): Promise<NoteDocument> {
     try {
       return await this.notesService.create(
+        {
+          title,
+          content,
+        },
+        req.user.id,
+      );
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() { title, content }: UpdateNoteDto,
+  ): Promise<NoteDocument> {
+    try {
+      return await this.notesService.update(
+        id,
         {
           title,
           content,

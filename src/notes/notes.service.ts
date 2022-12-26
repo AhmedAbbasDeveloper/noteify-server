@@ -6,7 +6,7 @@ import { Note, NoteDocument } from './note.schema';
 
 import { UsersService } from '../users/users.service';
 
-import { CreateNoteDto } from './dto';
+import { CreateNoteDto, UpdateNoteDto } from './dto';
 
 @Injectable()
 export class NotesService {
@@ -28,6 +28,22 @@ export class NotesService {
     }
 
     return await this.noteModel.create({ title, content, user });
+  }
+
+  async update(
+    id: string,
+    { title, content }: UpdateNoteDto,
+    user: string,
+  ): Promise<NoteDocument> {
+    if (!title && !content) {
+      throw new Error('Please add a title or content to your note.');
+    }
+
+    return await this.noteModel.findOneAndUpdate(
+      { _id: id, user },
+      { title, content },
+      { new: true },
+    );
   }
 
   async remove(id: string, user: string): Promise<NoteDocument> {
