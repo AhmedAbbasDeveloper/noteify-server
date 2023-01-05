@@ -19,8 +19,8 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req): Promise<AccessTokenDto> {
-    return await this.authService.login(req.user);
+  login(@Request() req): AccessTokenDto {
+    return this.authService.login(req.user);
   }
 
   @Post('register')
@@ -28,7 +28,7 @@ export class AuthController {
     @Body() { firstName, lastName, email, password }: CreateUserDto,
   ): Promise<AccessTokenDto> {
     try {
-      return await this.authService.register({
+      return this.authService.register({
         firstName,
         lastName,
         email,

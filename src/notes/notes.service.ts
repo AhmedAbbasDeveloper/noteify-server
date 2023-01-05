@@ -16,7 +16,7 @@ export class NotesService {
   ) {}
 
   async findAllByUser(user: string): Promise<NoteDocument[]> {
-    return await this.noteModel.find({ user }).sort({ createdAt: 'asc' });
+    return this.noteModel.find({ user }).sort({ createdAt: 'asc' });
   }
 
   async create(
@@ -27,7 +27,7 @@ export class NotesService {
       throw new Error('Please add a title or content to your note.');
     }
 
-    return await this.noteModel.create({ title, content, user });
+    return this.noteModel.create({ title, content, user });
   }
 
   async update(
@@ -39,7 +39,7 @@ export class NotesService {
       throw new Error('Please add a title or content to your note.');
     }
 
-    return await this.noteModel.findOneAndUpdate(
+    return this.noteModel.findOneAndUpdate(
       { _id: id, user },
       { title, content },
       { new: true },
@@ -47,6 +47,6 @@ export class NotesService {
   }
 
   async remove(id: string, user: string): Promise<NoteDocument> {
-    return await this.noteModel.findOneAndDelete({ _id: id, user });
+    return this.noteModel.findOneAndDelete({ _id: id, user });
   }
 }

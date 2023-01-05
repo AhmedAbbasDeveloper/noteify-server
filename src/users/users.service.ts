@@ -11,12 +11,12 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findOne(id: string): Promise<UserDocument> {
-    return await this.userModel.findById(id);
+    return this.userModel.findById(id);
   }
 
   async findByEmail(email: string): Promise<UserDocument | undefined> {
     const lowerCaseEmail = email.toLowerCase();
-    return await this.userModel.findOne({ email: lowerCaseEmail });
+    return this.userModel.findOne({ email: lowerCaseEmail });
   }
 
   async create({
@@ -26,7 +26,7 @@ export class UsersService {
     password,
   }: CreateUserDto): Promise<UserDocument> {
     const lowerCaseEmail = email.toLowerCase();
-    return await this.userModel.create({
+    return this.userModel.create({
       firstName,
       lastName,
       email: lowerCaseEmail,

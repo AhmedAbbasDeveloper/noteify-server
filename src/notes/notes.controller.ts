@@ -25,7 +25,7 @@ export class NotesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAllByUser(@Request() req): Promise<NoteDocument[]> {
-    return await this.notesService.findAllByUser(req.user.id);
+    return this.notesService.findAllByUser(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -35,7 +35,7 @@ export class NotesController {
     @Body() { title, content }: CreateNoteDto,
   ): Promise<NoteDocument> {
     try {
-      return await this.notesService.create(
+      return this.notesService.create(
         {
           title,
           content,
@@ -55,7 +55,7 @@ export class NotesController {
     @Body() { title, content }: UpdateNoteDto,
   ): Promise<NoteDocument> {
     try {
-      return await this.notesService.update(
+      return this.notesService.update(
         id,
         {
           title,
@@ -71,6 +71,6 @@ export class NotesController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string): Promise<NoteDocument> {
-    return await this.notesService.remove(id, req.user.id);
+    return this.notesService.remove(id, req.user.id);
   }
 }

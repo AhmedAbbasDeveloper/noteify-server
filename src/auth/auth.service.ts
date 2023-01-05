@@ -20,13 +20,15 @@ export class AuthService {
     password: string,
   ): Promise<UserDocument | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await compare(password, user.password))) {
+    const valid = user && (await compare(password, user.password));
+
+    if (valid) {
       return user;
     }
     return null;
   }
 
-  async login(user: UserDocument): Promise<AccessTokenDto> {
+  login(user: UserDocument): AccessTokenDto {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
@@ -52,6 +54,6 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return await this.login(user);
+    return this.login(user);
   }
 }
