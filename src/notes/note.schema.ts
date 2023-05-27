@@ -14,7 +14,7 @@ export class Note {
   content: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  user: User;
+  userId: User;
 }
 
 export const NoteSchema = SchemaFactory.createForClass(Note);

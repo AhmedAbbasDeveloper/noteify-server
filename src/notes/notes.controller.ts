@@ -11,12 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
 import { NoteDocument } from './note.schema';
 import { NotesService } from './notes.service';
-
 import { CreateNoteDto, UpdateNoteDto } from './dto';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('notes')
 export class NotesController {
@@ -53,7 +52,7 @@ export class NotesController {
     @Request() req,
     @Param('id') id: string,
     @Body() { title, content }: UpdateNoteDto,
-  ): Promise<NoteDocument> {
+  ): Promise<NoteDocument | null> {
     try {
       return this.notesService.update(
         id,
@@ -70,7 +69,10 @@ export class NotesController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(@Request() req, @Param('id') id: string): Promise<NoteDocument> {
+  async remove(
+    @Request() req,
+    @Param('id') id: string,
+  ): Promise<NoteDocument | null> {
     return this.notesService.remove(id, req.user.id);
   }
 }

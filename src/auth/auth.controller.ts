@@ -9,13 +9,13 @@ import {
 
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
-
 import { AccessTokenDto } from './dto';
+
 import { CreateUserDto } from '../users/dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -31,7 +31,7 @@ export class AuthController {
       return this.authService.register({
         firstName,
         lastName,
-        email,
+        email: email.toLowerCase(),
         password,
       });
     } catch (error) {
