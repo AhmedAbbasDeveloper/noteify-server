@@ -1,6 +1,12 @@
-fly.toml
-Dockerfile
 .dockerignore
-node_modules
-dist
+.eslintrc.js
 .git
+.gitignore
+.prettierrc
+/coverage
+/dist
+Dockerfile
+docker-compose.yml
+fly.toml
+/node_modules
+README.md
