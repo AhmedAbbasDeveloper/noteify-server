@@ -4,7 +4,7 @@ import { compare, hash } from 'bcrypt';
 
 import { AccessTokenDto } from './dto';
 
-import { UserDocument } from '../users/user.schema';
+import { User } from '../users/user.schema';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto';
 
@@ -15,10 +15,7 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<UserDocument | null> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
     const valid = user && (await compare(password, user.password));
     if (valid) {
@@ -29,7 +26,7 @@ export class AuthService {
     return null;
   }
 
-  login(user: UserDocument): AccessTokenDto {
+  login(user: User): AccessTokenDto {
     return {
       access_token: this.jwtService.sign({ email: user.email, sub: user.id }),
     };

@@ -11,14 +11,14 @@ export class NotesService {
     @InjectModel(Note.name) private readonly noteModel: Model<NoteDocument>,
   ) {}
 
-  async findAllByUser(userId: string): Promise<NoteDocument[]> {
+  async findAllByUser(userId: string): Promise<Note[]> {
     return this.noteModel.find({ userId }).sort({ createdAt: 'asc' });
   }
 
   async create(
     { title, content }: CreateNoteDto,
     userId: string,
-  ): Promise<NoteDocument> {
+  ): Promise<Note> {
     if (!title && !content) {
       throw new Error('Please add a title or content to your note.');
     }
@@ -30,7 +30,7 @@ export class NotesService {
     id: string,
     { title, content }: UpdateNoteDto,
     userId: string,
-  ): Promise<NoteDocument | null> {
+  ): Promise<Note | null> {
     if (!title && !content) {
       throw new Error('Please add a title or content to your note.');
     }
@@ -42,7 +42,7 @@ export class NotesService {
     );
   }
 
-  async remove(id: string, userId: string): Promise<NoteDocument | null> {
+  async remove(id: string, userId: string): Promise<Note | null> {
     return this.noteModel.findOneAndDelete({ _id: id, userId });
   }
 }

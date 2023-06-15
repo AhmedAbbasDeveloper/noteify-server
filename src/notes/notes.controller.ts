@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { NoteDocument } from './note.schema';
+import { Note } from './note.schema';
 import { NotesService } from './notes.service';
 import { CreateNoteDto, UpdateNoteDto } from './dto';
 
@@ -23,7 +23,7 @@ export class NotesController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAllByUser(@Request() req): Promise<NoteDocument[]> {
+  async findAllByUser(@Request() req): Promise<Note[]> {
     return this.notesService.findAllByUser(req.user.id);
   }
 
@@ -32,7 +32,7 @@ export class NotesController {
   async create(
     @Request() req,
     @Body() { title, content }: CreateNoteDto,
-  ): Promise<NoteDocument> {
+  ): Promise<Note> {
     try {
       return this.notesService.create(
         {
@@ -52,7 +52,7 @@ export class NotesController {
     @Request() req,
     @Param('id') id: string,
     @Body() { title, content }: UpdateNoteDto,
-  ): Promise<NoteDocument | null> {
+  ): Promise<Note | null> {
     try {
       return this.notesService.update(
         id,
@@ -69,10 +69,7 @@ export class NotesController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(
-    @Request() req,
-    @Param('id') id: string,
-  ): Promise<NoteDocument | null> {
+  async remove(@Request() req, @Param('id') id: string): Promise<Note | null> {
     return this.notesService.remove(id, req.user.id);
   }
 }
