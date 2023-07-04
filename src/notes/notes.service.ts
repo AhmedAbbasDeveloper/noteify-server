@@ -12,7 +12,7 @@ export class NotesService {
   ) {}
 
   async findAllByUser(userId: string): Promise<Note[]> {
-    return this.noteModel.find({ userId }).sort({ createdAt: 'asc' });
+    return this.noteModel.find({ userId }, null, { sort: { createdAt: 1 } });
   }
 
   async create(

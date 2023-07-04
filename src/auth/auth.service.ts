@@ -18,12 +18,12 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
     const valid = user && (await compare(password, user.password));
-    if (valid) {
-      user.password = undefined;
-      return user;
+    if (!valid) {
+      return null;
     }
 
-    return null;
+    user.password = undefined;
+    return user;
   }
 
   login(user: User): AccessTokenDto {
@@ -43,12 +43,11 @@ export class AuthService {
       throw new Error('Email already registered. Please login instead.');
     }
 
-    const hashedPassword = await hash(password, 10);
     const user = await this.usersService.create({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password: await hash(password, 10),
     });
 
     return this.login(user);
