@@ -26,7 +26,7 @@ export class AuthService {
     return user;
   }
 
-  login(user: User): AccessTokenDto {
+  login(user: User | Partial<User>): AccessTokenDto {
     return {
       access_token: this.jwtService.sign({ email: user.email, sub: user.id }),
     };

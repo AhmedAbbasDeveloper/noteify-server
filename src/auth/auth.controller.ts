@@ -2,15 +2,17 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Request,
   Post,
   UseGuards,
 } from '@nestjs/common';
+
+import { CurrentUser } from '../decorators/user.decorator';
 
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AccessTokenDto } from './dto';
 
+import { User } from '../users/user.schema';
 import { CreateUserDto } from '../users/dto';
 
 @Controller('auth')
@@ -19,8 +21,8 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req): AccessTokenDto {
-    return this.authService.login(req.user);
+  login(@CurrentUser() currentUser: Partial<User>): AccessTokenDto {
+    return this.authService.login(currentUser);
   }
 
   @Post('register')
