@@ -16,7 +16,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findOneByEmail(email);
     const valid = user && (await compare(password, user.password));
     if (!valid) {
       return null;
@@ -38,7 +38,7 @@ export class AuthService {
     email,
     password,
   }: CreateUserDto): Promise<AccessTokenDto> {
-    const exists = await this.usersService.findByEmail(email);
+    const exists = await this.usersService.findOneByEmail(email);
     if (exists) {
       throw new Error('Email already registered. Please login instead.');
     }

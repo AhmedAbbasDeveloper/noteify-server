@@ -29,7 +29,7 @@ describe('AuthService', () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(null);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce(null);
 
       const validateUser = await authService.validateUser(email, password);
 
@@ -40,7 +40,7 @@ describe('AuthService', () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce({
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce({
         id: faker.string.uuid(),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
@@ -69,7 +69,7 @@ describe('AuthService', () => {
         updatedAt: faker.date.past(),
       };
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(user);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce(user);
 
       const validateUser = await authService.validateUser(email, password);
 
@@ -90,7 +90,7 @@ describe('AuthService', () => {
         updatedAt: faker.date.past(),
       };
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(user);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce(user);
 
       const validateUser = await authService.validateUser(email, password);
 
@@ -128,7 +128,7 @@ describe('AuthService', () => {
         password: faker.internet.password(),
       };
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce({
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce({
         id: faker.string.uuid(),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
@@ -161,7 +161,7 @@ describe('AuthService', () => {
         updatedAt: faker.date.past(),
       };
 
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(null);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce(null);
       jest.spyOn(usersService, 'create').mockResolvedValueOnce(user);
       jest
         .spyOn(authService, 'login')

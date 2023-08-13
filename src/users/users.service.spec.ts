@@ -27,11 +27,11 @@ describe('UsersService', () => {
     usersService = module.get<UsersService>(UsersService);
   });
 
-  describe('findByEmail', () => {
+  describe('findOneByEmail', () => {
     it('finds user by email', async () => {
       const email = faker.internet.email();
 
-      await usersService.findByEmail(email);
+      await usersService.findOneByEmail(email);
 
       expect(userModel.findOne).toHaveBeenCalledWith({ email });
     });
