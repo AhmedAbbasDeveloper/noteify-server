@@ -2,9 +2,10 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 
 import { AuthService } from './auth.service';
+
 import { UsersService } from '../users/users.service';
 
 describe('AuthService', () => {
