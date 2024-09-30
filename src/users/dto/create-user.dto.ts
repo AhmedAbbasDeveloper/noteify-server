@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, Validate } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Validate,
+} from 'class-validator';
 import {
   PasswordValidation,
   PasswordValidationRequirement,
@@ -20,12 +27,14 @@ export class CreateUserDto {
   @IsString()
   lastName: string;
 
+  @Transform(({ value }) => value.toLowerCase())
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
   @IsNotEmpty()
   @IsString()
+  @Length(8)
   @Validate(PasswordValidation, [passwordRequirement])
   password: string;
 }
