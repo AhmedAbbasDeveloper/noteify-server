@@ -3,8 +3,8 @@ version: '3'
 services:
   api:
     build:
-      dockerfile: Dockerfile
       context: .
+      dockerfile: Dockerfile
       target: development
     command: npm run start:dev
     depends_on:
@@ -15,7 +15,6 @@ services:
       - ${PORT}:${PORT}
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
 
   mongodb:
     env_file:
