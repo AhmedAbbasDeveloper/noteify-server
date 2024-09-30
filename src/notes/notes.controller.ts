@@ -10,13 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { CurrentUser } from '../decorators/user.decorator';
-
+import { CreateNoteDto, UpdateNoteDto } from './dto';
 import { Note } from './note.schema';
 import { NotesService } from './notes.service';
-import { CreateNoteDto, UpdateNoteDto } from './dto';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../decorators/user.decorator';
 import { User } from '../users/user.schema';
 
 @Controller('notes')

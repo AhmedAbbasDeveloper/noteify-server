@@ -6,14 +6,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { CurrentUser } from '../decorators/user.decorator';
-
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
 import { AccessTokenDto } from './dto';
+import { LocalAuthGuard } from './local-auth.guard';
 
-import { User } from '../users/user.schema';
+import { CurrentUser } from '../decorators/user.decorator';
 import { CreateUserDto } from '../users/dto';
+import { User } from '../users/user.schema';
 
 @Controller('auth')
 export class AuthController {
