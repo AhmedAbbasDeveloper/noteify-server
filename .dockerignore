@@ -1,16 +1,47 @@
-coverage
-dist
-Dockerfile
-fly.toml
-nest-cli.json
+# Ignore node_modules to avoid copying local dependencies
 node_modules
-.docker-compose.yaml
-.DS_Store
-.eslintrc.js
-.git
-.github
-.gitignore
-.prettierrc
-*.md
+npm-debug.log
+
+# Ignore build artifacts
+dist
+build
+coverage
+
+# Ignore environment variable files
+.env
+.env.local
+
+# Ignore logs
 *.log
-*.test.ts
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore Docker and Compose files (optional)
+Dockerfile
+docker-compose.yml
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore unnecessary files
+*.tgz
+*.zip
+
+# Ignore Linting files
+.eslintrc.js
+.prettierrc
+
+# Ignore Tests files
+/src/**/*.test.ts
+
+# Ignore Deployment files
+fly.toml

@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
-import { Note, NoteDocument } from './note.schema';
-import { CreateNoteDto, UpdateNoteDto } from './dto';
+import { NoteDto } from './dto';
+import { Note, NoteDocument } from './schemas/note.schema';
 
 @Injectable()
 export class NotesService {
@@ -11,38 +15,63 @@ export class NotesService {
     @InjectModel(Note.name) private readonly noteModel: Model<NoteDocument>,
   ) {}
 
-  async findAllByUser(userId: string): Promise<Note[]> {
-    return this.noteModel.find({ userId }, null, { sort: { createdAt: 1 } });
+  async findAllByUserId(creatorId: string): Promise<NoteDocument[]> {
+    return this.noteModel.find({ creatorId }).sort({ updatedAt: -1 });
   }
 
   async create(
-    { title, content }: CreateNoteDto,
-    userId: string,
-  ): Promise<Note> {
-    if (!title && !content) {
-      throw new Error('Please add a title or content to your note.');
-    }
+    { title, content }: NoteDto,
+    creatorId: string,
+  ): Promise<NoteDocument> {
+    const noteData: Partial<NoteDocument> = {
+      ...(title ? { title } : {}),
+      ...(content ? { content } : {}),
+    };
 
-    return this.noteModel.create({ title, content, userId });
+    return this.noteModel.create({ ...noteData, creatorId });
   }
 
   async update(
     id: string,
-    { title, content }: UpdateNoteDto,
-    userId: string,
-  ): Promise<Note | null> {
-    if (!title && !content) {
-      throw new Error('Please add a title or content to your note.');
+    { title, content }: NoteDto,
+    creatorId: string,
+  ): Promise<NoteDocument | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid note ID format');
     }
 
-    return this.noteModel.findOneAndUpdate(
-      { _id: id, userId },
-      { title, content },
+    const updateOperation = {
+      ...(title ? { title } : { $unset: { title: '' } }),
+      ...(content ? { content } : { $unset: { content: '' } }),
+    };
+
+    const updatedNote = await this.noteModel.findOneAndUpdate(
+      { _id: id, creatorId },
+      updateOperation,
       { new: true },
     );
+
+    if (!updatedNote) {
+      throw new NotFoundException(`Note not found`);
+    }
+
+    return updatedNote;
   }
 
-  async remove(id: string, userId: string): Promise<Note | null> {
-    return this.noteModel.findOneAndDelete({ _id: id, userId });
+  async remove(id: string, creatorId: string): Promise<NoteDocument | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid note ID format');
+    }
+
+    const deletedNote = await this.noteModel.findOneAndDelete({
+      _id: id,
+      creatorId,
+    });
+
+    if (!deletedNote) {
+      throw new NotFoundException(`Note not found`);
+    }
+
+    return deletedNote;
   }
 }

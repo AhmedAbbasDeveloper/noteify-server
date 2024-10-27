@@ -1,18 +1,12 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto';
 import { LocalAuthGuard } from './local-auth.guard';
 
-import { CurrentUser } from '../decorators/user.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { CreateUserDto } from '../users/dto';
-import { User } from '../users/user.schema';
+import { UserDocument } from '../users/schemas/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +14,9 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@CurrentUser() currentUser: Partial<User>): AccessTokenDto {
+  async login(
+    @CurrentUser() currentUser: UserDocument,
+  ): Promise<AccessTokenDto> {
     return this.authService.login(currentUser);
   }
 
@@ -28,15 +24,11 @@ export class AuthController {
   async register(
     @Body() { firstName, lastName, email, password }: CreateUserDto,
   ): Promise<AccessTokenDto> {
-    try {
-      return this.authService.register({
-        firstName,
-        lastName,
-        email: email.toLowerCase(),
-        password,
-      });
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    return this.authService.register({
+      firstName,
+      lastName,
+      email,
+      password,
+    });
   }
 }

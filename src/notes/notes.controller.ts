@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,13 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { CreateNoteDto, UpdateNoteDto } from './dto';
-import { Note } from './note.schema';
+import { NoteDto } from './dto';
 import { NotesService } from './notes.service';
+import { NoteDocument } from './schemas/note.schema';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../decorators/user.decorator';
-import { User } from '../users/user.schema';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUserDocument } from '../users/schemas/current-user.schema';
 
 @Controller('notes')
 export class NotesController {
@@ -25,57 +24,49 @@ export class NotesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAllByUser(
-    @CurrentUser() currentUser: Partial<User>,
-  ): Promise<Note[]> {
-    return this.notesService.findAllByUser(currentUser.id);
+    @CurrentUser() currentUser: CurrentUserDocument,
+  ): Promise<NoteDocument[]> {
+    return this.notesService.findAllByUserId(currentUser.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
-    @CurrentUser() currentUser: Partial<User>,
-    @Body() { title, content }: CreateNoteDto,
-  ): Promise<Note> {
-    try {
-      return this.notesService.create(
-        {
-          title,
-          content,
-        },
-        currentUser.id,
-      );
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    @CurrentUser() currentUser: CurrentUserDocument,
+    @Body() { title, content }: NoteDto,
+  ): Promise<NoteDocument> {
+    return this.notesService.create(
+      {
+        title,
+        content,
+      },
+      currentUser.id,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
-    @CurrentUser() currentUser: Partial<User>,
+    @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id') id: string,
-    @Body() { title, content }: UpdateNoteDto,
-  ): Promise<Note | null> {
-    try {
-      return this.notesService.update(
-        id,
-        {
-          title,
-          content,
-        },
-        currentUser.id,
-      );
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    @Body() { title, content }: NoteDto,
+  ): Promise<NoteDocument | null> {
+    return this.notesService.update(
+      id,
+      {
+        title,
+        content,
+      },
+      currentUser.id,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
-    @CurrentUser() currentUser: Partial<User>,
+    @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id') id: string,
-  ): Promise<Note | null> {
+  ): Promise<NoteDocument | null> {
     return this.notesService.remove(id, currentUser.id);
   }
 }

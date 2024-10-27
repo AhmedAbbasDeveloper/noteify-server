@@ -1,10 +1,7 @@
-version: '3'
-
 services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
       target: development
     command: npm run start:dev
     depends_on:
@@ -21,9 +18,9 @@ services:
       - .env
     image: mongo
     ports:
-      - 27017:27017
+      - ${MONGO_PORT}:${MONGO_PORT}
     volumes:
-      - mongodb_data_container:/data/db
+      - mongodb_data:/data/db
 
 volumes:
-  mongodb_data_container:
+  mongodb_data:

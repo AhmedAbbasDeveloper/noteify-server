@@ -5,7 +5,7 @@ import { compare, hash } from 'bcryptjs';
 import { AccessTokenDto } from './dto';
 
 import { CreateUserDto } from '../users/dto';
-import { User } from '../users/user.schema';
+import { UserDocument } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -15,8 +15,12 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<User | null> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserDocument | null> {
     const user = await this.usersService.findOneByEmail(email);
+
     const valid = user && (await compare(password, user.password));
     if (!valid) {
       return null;
@@ -26,9 +30,10 @@ export class AuthService {
     return user;
   }
 
-  login(user: User | Partial<User>): AccessTokenDto {
+  async login(user: UserDocument): Promise<AccessTokenDto> {
+    const payload = { sub: user._id, email: user.email };
     return {
-      access_token: this.jwtService.sign({ email: user.email, sub: user.id }),
+      access_token: this.jwtService.sign(payload),
     };
   }
 
@@ -38,11 +43,6 @@ export class AuthService {
     email,
     password,
   }: CreateUserDto): Promise<AccessTokenDto> {
-    const exists = await this.usersService.findOneByEmail(email);
-    if (exists) {
-      throw new Error('Email already registered. Please login instead.');
-    }
-
     const user = await this.usersService.create({
       firstName,
       lastName,

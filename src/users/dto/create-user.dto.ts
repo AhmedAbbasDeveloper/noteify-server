@@ -12,29 +12,34 @@ import {
 } from 'class-validator-password-check';
 
 const passwordRequirement: PasswordValidationRequirement = {
-  mustContainUpperLetter: true,
   mustContainLowerLetter: true,
+  mustContainUpperLetter: true,
   mustContainNumber: true,
   mustContainSpecialCharacter: true,
 };
 
 export class CreateUserDto {
-  @IsNotEmpty()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
+  @IsNotEmpty()
   firstName: string;
 
-  @IsNotEmpty()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
+  @IsNotEmpty()
   lastName: string;
 
-  @Transform(({ value }) => value.toLowerCase())
-  @IsNotEmpty()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @Length(8)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Validate(PasswordValidation, [passwordRequirement])
+  @Length(8)
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }
