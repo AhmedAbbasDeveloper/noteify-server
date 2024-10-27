@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { NoteDto } from './dto';
+import { NoteDto } from './dto/note.dto';
 import { NotesService } from './notes.service';
 import { NoteDocument } from './schemas/note.schema';
 

@@ -3,7 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 
-import { NoteDto } from './dto';
+import { NoteDto } from './dto/note.dto';
 import { NotesService } from './notes.service';
 import { Note, NoteDocument } from './schemas/note.schema';
 
@@ -196,7 +196,7 @@ describe('NotesService', () => {
     });
 
     it('should throw an error if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric();
+      const noteId = faker.string.alphanumeric(10);
       const creatorId = new Types.ObjectId().toString();
       const updateNoteInput: NoteDto = {
         title: faker.lorem.sentence(),
@@ -244,7 +244,7 @@ describe('NotesService', () => {
     });
 
     it('should throw an error if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric();
+      const noteId = faker.string.alphanumeric(10);
       const creatorId = new Types.ObjectId().toString();
 
       await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
