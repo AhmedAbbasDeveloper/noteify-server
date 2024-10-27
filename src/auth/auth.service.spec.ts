@@ -16,8 +16,8 @@ jest.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let usersService: UsersService;
   let jwtService: JwtService;
+  let usersService: UsersService;
 
   const mockUsersService = {
     findOneByEmail: jest.fn(),
@@ -28,7 +28,7 @@ describe('AuthService', () => {
     sign: jest.fn(),
   };
 
-  const token = 'jwtToken';
+  const token = faker.string.alphanumeric(32);
 
   const generateUser = (overrides = {}) => ({
     _id: new Types.ObjectId(),

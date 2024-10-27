@@ -7,24 +7,24 @@ import { NoteDto } from './dto/note.dto';
 import { NotesService } from './notes.service';
 import { Note, NoteDocument } from './schemas/note.schema';
 
-const mockNoteModel: Partial<Model<NoteDocument>> = {
-  find: jest.fn(),
-  create: jest.fn(),
-  findOneAndUpdate: jest.fn(),
-  findOneAndDelete: jest.fn(),
-};
-
-const generateMockNote = (overrides = {}) => ({
-  _id: new Types.ObjectId(),
-  title: faker.lorem.sentence(),
-  content: faker.lorem.sentence(),
-  creatorId: new Types.ObjectId().toString(),
-  ...overrides,
-});
-
 describe('NotesService', () => {
   let notesService: NotesService;
   let noteModel: Model<NoteDocument>;
+
+  const mockNoteModel: Partial<Model<NoteDocument>> = {
+    find: jest.fn(),
+    create: jest.fn(),
+    findOneAndUpdate: jest.fn(),
+    findOneAndDelete: jest.fn(),
+  };
+
+  const generateMockNote = (overrides = {}) => ({
+    _id: new Types.ObjectId(),
+    title: faker.lorem.words(),
+    content: faker.lorem.words(),
+    creatorId: new Types.ObjectId().toString(),
+    ...overrides,
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -65,8 +65,8 @@ describe('NotesService', () => {
     it('should create a note with both title and content', async () => {
       const creatorId = new Types.ObjectId().toString();
       const createNoteInput: NoteDto = {
-        title: faker.lorem.sentence(),
-        content: faker.lorem.sentence(),
+        title: faker.lorem.words(),
+        content: faker.lorem.words(),
       };
       const createdNote = { ...createNoteInput, creatorId };
 
@@ -80,7 +80,7 @@ describe('NotesService', () => {
 
     it('should create a note with only title', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = { title: faker.lorem.sentence() };
+      const createNoteInput: NoteDto = { title: faker.lorem.words() };
       const createdNote = { ...createNoteInput, creatorId };
 
       jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
@@ -93,7 +93,7 @@ describe('NotesService', () => {
 
     it('should create a note with only content', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = { content: faker.lorem.sentence() };
+      const createNoteInput: NoteDto = { content: faker.lorem.words() };
       const createdNote = { ...createNoteInput, creatorId };
 
       jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
@@ -111,8 +111,8 @@ describe('NotesService', () => {
         const noteId = new Types.ObjectId().toString();
         const creatorId = new Types.ObjectId().toString();
         const updateNoteInput: NoteDto = {
-          title: faker.lorem.sentence(),
-          content: faker.lorem.sentence(),
+          title: faker.lorem.words(),
+          content: faker.lorem.words(),
         };
         const updatedNote = generateMockNote({
           ...updateNoteInput,
@@ -141,7 +141,7 @@ describe('NotesService', () => {
       it('should update a note with only a title', async () => {
         const noteId = new Types.ObjectId().toString();
         const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = { title: faker.lorem.sentence() };
+        const updateNoteInput: NoteDto = { title: faker.lorem.words() };
         const updatedNote = generateMockNote({
           ...updateNoteInput,
           creatorId,
@@ -169,7 +169,7 @@ describe('NotesService', () => {
       it('should update a note with only content', async () => {
         const noteId = new Types.ObjectId().toString();
         const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = { content: faker.lorem.sentence() };
+        const updateNoteInput: NoteDto = { content: faker.lorem.words() };
         const updatedNote = generateMockNote({
           ...updateNoteInput,
           creatorId,
@@ -199,8 +199,8 @@ describe('NotesService', () => {
       const noteId = faker.string.alphanumeric(10);
       const creatorId = new Types.ObjectId().toString();
       const updateNoteInput: NoteDto = {
-        title: faker.lorem.sentence(),
-        content: faker.lorem.sentence(),
+        title: faker.lorem.words(),
+        content: faker.lorem.words(),
       };
 
       await expect(
@@ -212,8 +212,8 @@ describe('NotesService', () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
       const updateNoteInput: NoteDto = {
-        title: faker.lorem.sentence(),
-        content: faker.lorem.sentence(),
+        title: faker.lorem.words(),
+        content: faker.lorem.words(),
       };
 
       jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValueOnce(null);

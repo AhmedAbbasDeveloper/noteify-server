@@ -35,7 +35,7 @@ export class NotesService {
     id: string,
     { title, content }: NoteDto,
     creatorId: string,
-  ): Promise<NoteDocument | null> {
+  ): Promise<NoteDocument> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid note ID format');
     }
@@ -58,7 +58,7 @@ export class NotesService {
     return updatedNote;
   }
 
-  async remove(id: string, creatorId: string): Promise<NoteDocument | null> {
+  async remove(id: string, creatorId: string): Promise<NoteDocument> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid note ID format');
     }

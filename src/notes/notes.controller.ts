@@ -35,13 +35,7 @@ export class NotesController {
     @CurrentUser() currentUser: CurrentUserDocument,
     @Body() { title, content }: NoteDto,
   ): Promise<NoteDocument> {
-    return this.notesService.create(
-      {
-        title,
-        content,
-      },
-      currentUser.id,
-    );
+    return this.notesService.create({ title, content }, currentUser.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -50,15 +44,8 @@ export class NotesController {
     @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id') id: string,
     @Body() { title, content }: NoteDto,
-  ): Promise<NoteDocument | null> {
-    return this.notesService.update(
-      id,
-      {
-        title,
-        content,
-      },
-      currentUser.id,
-    );
+  ): Promise<NoteDocument> {
+    return this.notesService.update(id, { title, content }, currentUser.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,7 +53,7 @@ export class NotesController {
   async remove(
     @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id') id: string,
-  ): Promise<NoteDocument | null> {
+  ): Promise<NoteDocument> {
     return this.notesService.remove(id, currentUser.id);
   }
 }
