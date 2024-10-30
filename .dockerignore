@@ -14,11 +14,14 @@ coverage
 # Ignore logs
 *.log
 
+# Ignore markdown files
+*.md
+
 # Ignore Git files
 .git
 .gitignore
 
-# Ignore Docker and Compose files (optional)
+# Ignore Docker and Compose files
 Dockerfile
 docker-compose.yml
 
