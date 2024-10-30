@@ -3,7 +3,7 @@ services:
     build:
       context: .
       target: development
-    command: npm run start:dev
+    command: pnpm run start:dev
     depends_on:
       - mongodb
     env_file:

@@ -15,8 +15,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm run test
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - run: pnpm install
+      - run: pnpm run test
 
   deploy:
     name: Deploy to Fly.io

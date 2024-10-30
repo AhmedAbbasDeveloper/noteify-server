@@ -1,8 +1,8 @@
 {
   "name": "noteify-server",
   "version": "1.0.0",
-  "description": "Ahmed Abbas <theabbos@gmail.com>",
-  "author": "",
+  "description": "Noteify's server",
+  "author": "Ahmed Abbas <theabbos@gmail.com>",
   "private": true,
   "license": "ISC",
   "scripts": {
