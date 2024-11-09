@@ -23,7 +23,9 @@ export class UsersService {
   }: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userModel.exists({ email });
     if (existingUser) {
-      throw new ConflictException('User with this email already exists.');
+      throw new ConflictException(
+        'An account with this email already exists. Please log in or use a different email to register.',
+      );
     }
 
     return this.userModel.create({
