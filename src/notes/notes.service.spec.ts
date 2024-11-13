@@ -80,7 +80,10 @@ describe('NotesService', () => {
 
     it('should create a note with only title', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = { title: faker.lorem.words() };
+      const createNoteInput: NoteDto = {
+        title: faker.lorem.words(),
+        content: '',
+      };
       const createdNote = { ...createNoteInput, creatorId };
 
       jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
@@ -93,7 +96,10 @@ describe('NotesService', () => {
 
     it('should create a note with only content', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = { content: faker.lorem.words() };
+      const createNoteInput: NoteDto = {
+        title: '',
+        content: faker.lorem.words(),
+      };
       const createdNote = { ...createNoteInput, creatorId };
 
       jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
@@ -141,7 +147,10 @@ describe('NotesService', () => {
       it('should update a note with only a title', async () => {
         const noteId = new Types.ObjectId().toString();
         const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = { title: faker.lorem.words() };
+        const updateNoteInput: NoteDto = {
+          title: faker.lorem.words(),
+          content: '',
+        };
         const updatedNote = generateMockNote({
           ...updateNoteInput,
           creatorId,
@@ -161,7 +170,7 @@ describe('NotesService', () => {
         expect(result).toEqual(updatedNote);
         expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
           { _id: noteId, creatorId },
-          { ...updateNoteInput, $unset: { content: '' } },
+          updateNoteInput,
           { new: true },
         );
       });
@@ -169,7 +178,10 @@ describe('NotesService', () => {
       it('should update a note with only content', async () => {
         const noteId = new Types.ObjectId().toString();
         const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = { content: faker.lorem.words() };
+        const updateNoteInput: NoteDto = {
+          title: '',
+          content: faker.lorem.words(),
+        };
         const updatedNote = generateMockNote({
           ...updateNoteInput,
           creatorId,
@@ -189,7 +201,7 @@ describe('NotesService', () => {
         expect(result).toEqual(updatedNote);
         expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
           { _id: noteId, creatorId },
-          { ...updateNoteInput, $unset: { title: '' } },
+          updateNoteInput,
           { new: true },
         );
       });

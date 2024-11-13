@@ -23,12 +23,7 @@ export class NotesService {
     { title, content }: NoteDto,
     creatorId: string,
   ): Promise<NoteDocument> {
-    const noteData: Partial<NoteDocument> = {
-      ...(title ? { title } : {}),
-      ...(content ? { content } : {}),
-    };
-
-    return this.noteModel.create({ ...noteData, creatorId });
+    return this.noteModel.create({ title, content, creatorId });
   }
 
   async update(
@@ -40,14 +35,9 @@ export class NotesService {
       throw new BadRequestException('Invalid note ID format');
     }
 
-    const updateOperation = {
-      ...(title ? { title } : { $unset: { title: '' } }),
-      ...(content ? { content } : { $unset: { content: '' } }),
-    };
-
     const updatedNote = await this.noteModel.findOneAndUpdate(
       { _id: id, creatorId },
-      updateOperation,
+      { title, content },
       { new: true },
     );
 

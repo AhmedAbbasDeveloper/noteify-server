@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
-  IsOptional,
+  IsDefined,
   IsString,
   Validate,
   ValidationArguments,
@@ -8,8 +8,8 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-@ValidatorConstraint({ name: 'AtLeastOneProvided', async: false })
-class AtLeastOneConstraint implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: 'AtLeastOneNonEmpty', async: false })
+class AtLeastOneNonEmptyConstraint implements ValidatorConstraintInterface {
   validate(_: any, args: ValidationArguments): boolean {
     const { title, content } = args.object as NoteDto;
     return Boolean(title || content);
@@ -22,15 +22,15 @@ class AtLeastOneConstraint implements ValidatorConstraintInterface {
 
 export class NoteDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsOptional()
+  @IsDefined({ message: 'Title must be provided' })
   @IsString()
-  title?: string;
+  title: string;
 
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsOptional()
+  @IsDefined({ message: 'Content must be provided' })
   @IsString()
-  content?: string;
+  content: string;
 
-  @Validate(AtLeastOneConstraint)
+  @Validate(AtLeastOneNonEmptyConstraint)
   atLeastOne?: boolean;
 }
