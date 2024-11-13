@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from '@/auth/jwt.strategy';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;

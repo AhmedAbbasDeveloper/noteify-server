@@ -3,9 +3,9 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 
-import { NoteDto } from './dto/note.dto';
-import { NotesController } from './notes.controller';
-import { NotesService } from './notes.service';
+import { NoteDto } from '@/notes/dto/note.dto';
+import { NotesController } from '@/notes/notes.controller';
+import { NotesService } from '@/notes/notes.service';
 
 describe('NotesController', () => {
   let notesController: NotesController;

@@ -3,9 +3,9 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 
-import { NoteDto } from './dto/note.dto';
-import { NotesService } from './notes.service';
-import { Note, NoteDocument } from './schemas/note.schema';
+import { NoteDto } from '@/notes/dto/note.dto';
+import { NotesService } from '@/notes/notes.service';
+import { Note, NoteDocument } from '@/notes/schemas/note.schema';
 
 describe('NotesService', () => {
   let notesService: NotesService;

@@ -5,9 +5,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { compare, hash } from 'bcryptjs';
 import { Types } from 'mongoose';
 
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UsersService } from '../users/users.service';
-import { AuthService } from './auth.service';
+import { AuthService } from '@/auth/auth.service';
+import { CreateUserDto } from '@/users/dto/create-user.dto';
+import { UsersService } from '@/users/users.service';
 
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),

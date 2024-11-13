@@ -4,9 +4,9 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { User, UserDocument } from './schemas/user.schema';
-import { UsersService } from './users.service';
+import { CreateUserDto } from '@/users/dto/create-user.dto';
+import { User, UserDocument } from '@/users/schemas/user.schema';
+import { UsersService } from '@/users/users.service';
 
 describe('UsersService', () => {
   let usersService: UsersService;

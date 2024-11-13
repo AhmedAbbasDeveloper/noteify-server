@@ -3,11 +3,10 @@ import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AccessTokenDto } from './dto/access-token.dto';
-
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { AuthController } from '@/auth/auth.controller';
+import { AuthService } from '@/auth/auth.service';
+import { AccessTokenDto } from '@/auth/dto/access-token.dto';
+import { CreateUserDto } from '@/users/dto/create-user.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;

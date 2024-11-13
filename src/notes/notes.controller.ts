@@ -9,13 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { NoteDto } from './dto/note.dto';
-import { NotesService } from './notes.service';
-import { NoteDocument } from './schemas/note.schema';
-
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { CurrentUserDocument } from '../users/schemas/current-user.schema';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { CurrentUser } from '@/decorators/current-user.decorator';
+import { NoteDto } from '@/notes/dto/note.dto';
+import { NotesService } from '@/notes/notes.service';
+import { NoteDocument } from '@/notes/schemas/note.schema';
+import { CurrentUserDocument } from '@/users/schemas/current-user.schema';
 
 @Controller('notes')
 export class NotesController {

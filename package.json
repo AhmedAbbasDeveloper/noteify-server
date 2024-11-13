@@ -1,6 +1,5 @@
 {
   "name": "noteify-server",
-  "version": "1.0.0",
   "description": "Noteify's server",
   "author": "Ahmed Abbas <theabbos@gmail.com>",
   "private": true,
@@ -80,6 +79,13 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    },
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ]
   }
 }

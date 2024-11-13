@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { validate } from 'class-validator';
 
-import { NoteDto } from './note.dto';
+import { NoteDto } from '@/notes/dto/note.dto';
 
 describe('NoteDto', () => {
   const createNoteDto = (overrides = {}): NoteDto =>

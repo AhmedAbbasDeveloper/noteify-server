@@ -6,8 +6,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { NoteDto } from './dto/note.dto';
-import { Note, NoteDocument } from './schemas/note.schema';
+import { NoteDto } from '@/notes/dto/note.dto';
+import { Note, NoteDocument } from '@/notes/schemas/note.schema';
 
 @Injectable()
 export class NotesService {
