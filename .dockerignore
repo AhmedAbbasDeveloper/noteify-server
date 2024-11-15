@@ -23,7 +23,7 @@ coverage
 
 # Ignore Docker and Compose files
 Dockerfile
-docker-compose.yml
+docker-compose.yaml
 
 # Ignore IDE and editor files
 .vscode/
