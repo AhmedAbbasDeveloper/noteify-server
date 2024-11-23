@@ -14,6 +14,7 @@ import { CurrentUser } from '@/decorators/current-user.decorator';
 import { NoteDto } from '@/notes/dto/note.dto';
 import { NotesService } from '@/notes/notes.service';
 import { NoteDocument } from '@/notes/schemas/note.schema';
+import { ObjectIdValidationPipe } from '@/pipes/object-id-validation.pipe';
 import { CurrentUserDocument } from '@/users/schemas/current-user.schema';
 
 @Controller('notes')
@@ -41,7 +42,7 @@ export class NotesController {
   @Patch(':id')
   async update(
     @CurrentUser() currentUser: CurrentUserDocument,
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() { title, content }: NoteDto,
   ): Promise<NoteDocument> {
     return this.notesService.update(id, { title, content }, currentUser.id);
@@ -51,7 +52,7 @@ export class NotesController {
   @Delete(':id')
   async remove(
     @CurrentUser() currentUser: CurrentUserDocument,
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<NoteDocument> {
     return this.notesService.remove(id, currentUser.id);
   }

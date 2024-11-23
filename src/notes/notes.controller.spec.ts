@@ -115,7 +115,7 @@ describe('NotesController', () => {
       );
     });
 
-    it('should throw an error if ID is invalid', async () => {
+    it('should throw a BadRequestException if ID is invalid', async () => {
       const noteId = faker.string.alphanumeric(10);
       const updateNoteInput: NoteDto = {
         title: faker.lorem.words(),
@@ -131,7 +131,7 @@ describe('NotesController', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw an error if note not found', async () => {
+    it('should throw a NotFoundException if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const updateNoteInput: NoteDto = {
         title: faker.lorem.words(),
@@ -164,7 +164,7 @@ describe('NotesController', () => {
       );
     });
 
-    it('should throw an error if ID is invalid', async () => {
+    it('should throw a BadRequestException if ID is invalid', async () => {
       const noteId = faker.string.alphanumeric(10);
 
       jest
@@ -176,7 +176,7 @@ describe('NotesController', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw an error if note not found', async () => {
+    it('should throw a NotFoundException if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
 
       jest

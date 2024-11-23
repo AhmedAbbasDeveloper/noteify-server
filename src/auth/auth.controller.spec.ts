@@ -76,7 +76,7 @@ describe('AuthController', () => {
       expect(mockAuthService.register).toHaveBeenCalledWith(createUserInput);
     });
 
-    it('should throw an error if registration fails', async () => {
+    it('should throw a BadRequestException if registration fails', async () => {
       const createUserInput: CreateUserDto = {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),

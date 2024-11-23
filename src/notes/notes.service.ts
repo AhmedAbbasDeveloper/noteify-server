@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { NoteDto } from '@/notes/dto/note.dto';
 import { Note, NoteDocument } from '@/notes/schemas/note.schema';
@@ -31,10 +27,6 @@ export class NotesService {
     { title, content }: NoteDto,
     creatorId: string,
   ): Promise<NoteDocument> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid note ID format');
-    }
-
     const updatedNote = await this.noteModel.findOneAndUpdate(
       { _id: id, creatorId },
       { title, content },
@@ -42,24 +34,20 @@ export class NotesService {
     );
 
     if (!updatedNote) {
-      throw new NotFoundException(`Note not found`);
+      throw new NotFoundException('Note not found');
     }
 
     return updatedNote;
   }
 
   async remove(id: string, creatorId: string): Promise<NoteDocument> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid note ID format');
-    }
-
     const deletedNote = await this.noteModel.findOneAndDelete({
       _id: id,
       creatorId,
     });
 
     if (!deletedNote) {
-      throw new NotFoundException(`Note not found`);
+      throw new NotFoundException('Note not found');
     }
 
     return deletedNote;

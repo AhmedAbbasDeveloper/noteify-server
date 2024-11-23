@@ -6,6 +6,7 @@ import { Model, Types } from 'mongoose';
 import { NoteDto } from '@/notes/dto/note.dto';
 import { NotesService } from '@/notes/notes.service';
 import { Note, NoteDocument } from '@/notes/schemas/note.schema';
+import { NotFoundException } from '@nestjs/common';
 
 describe('NotesService', () => {
   let notesService: NotesService;
@@ -207,20 +208,7 @@ describe('NotesService', () => {
       });
     });
 
-    it('should throw an error if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric(10);
-      const creatorId = new Types.ObjectId().toString();
-      const updateNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
-
-      await expect(
-        notesService.update(noteId, updateNoteInput, creatorId),
-      ).rejects.toThrow('Invalid note ID format');
-    });
-
-    it('should throw an error if note not found', async () => {
+    it('should throw a NotFoundException if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
       const updateNoteInput: NoteDto = {
@@ -232,7 +220,7 @@ describe('NotesService', () => {
 
       await expect(
         notesService.update(noteId, updateNoteInput, creatorId),
-      ).rejects.toThrow('Note not found');
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -255,23 +243,14 @@ describe('NotesService', () => {
       });
     });
 
-    it('should throw an error if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric(10);
-      const creatorId = new Types.ObjectId().toString();
-
-      await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
-        'Invalid note ID format',
-      );
-    });
-
-    it('should throw an error if note not found', async () => {
+    it('should throw a NotFoundException if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
 
       jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValueOnce(null);
 
       await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
-        'Note not found',
+        NotFoundException,
       );
     });
   });
