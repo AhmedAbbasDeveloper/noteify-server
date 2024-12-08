@@ -1,50 +1,34 @@
-# Ignore node_modules to avoid copying local dependencies
+# Node modules
 node_modules
-npm-debug.log
 
-# Ignore build artifacts
+# Build output
 dist
-build
+
+# OS
+.DS_Store
+
+# Tests
+src/**/*.test.ts
 coverage
 
-# Ignore environment variable files
+# Environment variables
 .env
-.env.local
 
-# Ignore logs
-*.log
-
-# Ignore markdown files
+# Markdown
 *.md
 
-# Ignore Git files
+# Git
 .git
 .gitignore
 
-# Ignore Docker and Compose files
+# Docker and Compose
 Dockerfile
 docker-compose.yaml
 
-# Ignore IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Ignore OS-generated files
-.DS_Store
-Thumbs.db
-
-# Ignore unnecessary files
-*.tgz
-*.zip
-
-# Ignore Linting files
+# Linting and formatting
 .eslintrc.js
 .prettierrc
+.prettierignore
 
-# Ignore Tests files
-/src/**/*.test.ts
-
-# Ignore Deployment files
+# Deployment
 fly.toml
