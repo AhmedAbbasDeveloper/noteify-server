@@ -19,24 +19,23 @@ const passwordRequirement: PasswordValidationRequirement = {
 };
 
 export class CreateUserDto {
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: string }) => value.trim().toLowerCase())
   @IsString()
   @IsNotEmpty()
   firstName: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: string }) => value.trim().toLowerCase())
   @IsString()
   @IsNotEmpty()
   lastName: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.toLowerCase().trim() : value,
-  )
+  @Transform(({ value }: { value: string }) => value.trim().toLowerCase())
   @IsEmail()
+  @IsString()
   @IsNotEmpty()
   email: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: string }) => value.trim())
   @Validate(PasswordValidation, [passwordRequirement])
   @Length(8)
   @IsString()

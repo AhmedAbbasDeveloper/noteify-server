@@ -4,7 +4,6 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 
-import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { User, UserDocument } from '@/users/schemas/user.schema';
 import { UsersService } from '@/users/users.service';
 
@@ -12,29 +11,27 @@ describe('UsersService', () => {
   let usersService: UsersService;
   let userModel: Model<UserDocument>;
 
-  const mockUserModel: Partial<Model<UserDocument>> = {
+  const mockUserModel = {
     findOne: jest.fn(),
     exists: jest.fn(),
     create: jest.fn(),
   };
 
-  const generateUser = (overrides = {}) => ({
-    _id: new Types.ObjectId(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    ...overrides,
-  });
+  const generateUser = (overrides = {}) =>
+    ({
+      _id: new Types.ObjectId(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      ...overrides,
+    }) as UserDocument;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
-        {
-          provide: getModelToken(User.name),
-          useValue: mockUserModel,
-        },
+        { provide: getModelToken(User.name), useValue: mockUserModel },
       ],
     }).compile();
 
@@ -51,7 +48,7 @@ describe('UsersService', () => {
       const email = faker.internet.email();
       const foundUser = generateUser({ email });
 
-      jest.spyOn(userModel, 'findOne').mockResolvedValueOnce(foundUser);
+      jest.spyOn(userModel, 'findOne').mockResolvedValue(foundUser);
 
       const result = await usersService.findOneByEmail(email);
 
@@ -59,10 +56,10 @@ describe('UsersService', () => {
       expect(userModel.findOne).toHaveBeenCalledWith({ email });
     });
 
-    it('should return null if no user is found', async () => {
+    it('should return null if user not found', async () => {
       const email = faker.internet.email();
 
-      jest.spyOn(userModel, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(userModel, 'findOne').mockResolvedValue(null);
 
       const result = await usersService.findOneByEmail(email);
 
@@ -72,46 +69,58 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('should successfully create a new user when email is not taken', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
-      const createdUser = generateUser(createUserInput);
+    it('should create a new user successfully', async () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const createdUser = generateUser({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
 
-      jest.spyOn(userModel, 'exists').mockResolvedValueOnce(null);
-      jest.spyOn(userModel, 'create').mockResolvedValueOnce(createdUser as any);
+      jest.spyOn(userModel, 'exists').mockResolvedValue(null);
+      jest
+        .spyOn(userModel, 'create')
+        .mockImplementation(() => Promise.resolve(createdUser as any));
 
-      const result = await usersService.create(createUserInput);
+      const result = await usersService.create({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
 
       expect(result).toEqual(createdUser);
-      expect(userModel.exists).toHaveBeenCalledWith({
-        email: createUserInput.email,
+      expect(userModel.exists).toHaveBeenCalledWith({ email });
+      expect(userModel.create).toHaveBeenCalledWith({
+        firstName,
+        lastName,
+        email,
+        password,
       });
-      expect(userModel.create).toHaveBeenCalledWith(createUserInput);
     });
 
-    it('should throw a ConflictException if the email is already taken', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
-      const createdUser = generateUser(createUserInput);
+    it('should throw ConflictException if email already exists', async () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
 
       jest
         .spyOn(userModel, 'exists')
-        .mockResolvedValueOnce({ _id: createdUser._id });
+        .mockResolvedValue({ _id: new Types.ObjectId() });
 
-      await expect(usersService.create(createUserInput)).rejects.toThrow(
-        ConflictException,
+      await expect(
+        usersService.create({ firstName, lastName, email, password }),
+      ).rejects.toThrow(
+        new ConflictException(
+          'An account with this email already exists. Please log in or use a different email to register.',
+        ),
       );
-      expect(userModel.exists).toHaveBeenCalledWith({
-        email: createUserInput.email,
-      });
+      expect(userModel.exists).toHaveBeenCalledWith({ email });
       expect(userModel.create).not.toHaveBeenCalled();
     });
   });

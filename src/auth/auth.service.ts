@@ -25,15 +25,13 @@ export class AuthService {
       return null;
     }
 
-    user.password = undefined;
+    user.password = '';
     return user;
   }
 
-  async login(user: UserDocument): Promise<AccessTokenDto> {
+  login(user: UserDocument): AccessTokenDto {
     const payload = { sub: user._id, email: user.email };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return { access_token: this.jwtService.sign(payload) };
   }
 
   async register({

@@ -1,9 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 
-import { NoteDto } from '@/notes/dto/note.dto';
 import { NotesController } from '@/notes/notes.controller';
 import { NotesService } from '@/notes/notes.service';
 
@@ -18,28 +17,23 @@ describe('NotesController', () => {
     remove: jest.fn(),
   };
 
-  const mockCurrentUser = {
+  const generateCurrentUser = () => ({
     id: new Types.ObjectId().toString(),
     email: faker.internet.email(),
-  };
+  });
 
-  const generateMockNote = (overrides = {}) => ({
+  const generateNote = (overrides = {}) => ({
     _id: new Types.ObjectId(),
     title: faker.lorem.words(),
     content: faker.lorem.words(),
-    creatorId: mockCurrentUser.id,
+    creatorId: new Types.ObjectId().toString(),
     ...overrides,
   });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotesController],
-      providers: [
-        {
-          provide: NotesService,
-          useValue: mockNotesService,
-        },
-      ],
+      providers: [{ provide: NotesService, useValue: mockNotesService }],
     }).compile();
 
     notesController = module.get<NotesController>(NotesController);
@@ -51,141 +45,120 @@ describe('NotesController', () => {
   });
 
   describe('findAllByUser', () => {
-    it('should return an array of notes for the current user', async () => {
-      const foundNotes = [generateMockNote()];
-
+    it('should return an array of notes', async () => {
+      const currentUser = generateCurrentUser();
+      const foundNotes = [generateNote()];
       jest
         .spyOn(notesService, 'findAllByUserId')
         .mockResolvedValue(foundNotes as any);
 
-      const result = await notesController.findAllByUser(mockCurrentUser);
+      const result = await notesController.findAllByUser(currentUser);
 
       expect(result).toEqual(foundNotes);
-      expect(mockNotesService.findAllByUserId).toHaveBeenCalledWith(
-        mockCurrentUser.id,
-      );
+      expect(notesService.findAllByUserId).toHaveBeenCalledWith(currentUser.id);
     });
   });
 
   describe('create', () => {
-    it('should create a note and return it', async () => {
-      const createNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
-      const createdNote = { ...createNoteInput, creatorId: mockCurrentUser.id };
+    it('should create a new note', async () => {
+      const currentUser = generateCurrentUser();
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
+      const createdNote = generateNote({
+        title,
+        content,
+        creatorId: currentUser.id,
+      });
 
       jest.spyOn(notesService, 'create').mockResolvedValue(createdNote as any);
 
-      const result = await notesController.create(
-        mockCurrentUser,
-        createNoteInput,
-      );
+      const result = await notesController.create(currentUser, {
+        title,
+        content,
+      });
 
       expect(result).toEqual(createdNote);
-      expect(mockNotesService.create).toHaveBeenCalledWith(
-        createNoteInput,
-        mockCurrentUser.id,
+      expect(notesService.create).toHaveBeenCalledWith(
+        { title, content },
+        currentUser.id,
       );
     });
   });
 
   describe('update', () => {
-    it('should update a note and return it', async () => {
+    it('should update an existing note', async () => {
+      const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
-      const updateNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
-      const updatedNote = generateMockNote({ ...updateNoteInput, _id: noteId });
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
+      const updatedNote = generateNote({
+        _id: noteId,
+        title,
+        content,
+      });
 
       jest.spyOn(notesService, 'update').mockResolvedValue(updatedNote as any);
 
-      const result = await notesController.update(
-        mockCurrentUser,
-        noteId,
-        updateNoteInput,
-      );
+      const result = await notesController.update(currentUser, noteId, {
+        title,
+        content,
+      });
 
       expect(result).toEqual(updatedNote);
-      expect(mockNotesService.update).toHaveBeenCalledWith(
+      expect(notesService.update).toHaveBeenCalledWith(
         noteId,
-        updateNoteInput,
-        mockCurrentUser.id,
+        { title, content },
+        currentUser.id,
       );
-    });
-
-    it('should throw a BadRequestException if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric(10);
-      const updateNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
-
-      jest
-        .spyOn(notesService, 'update')
-        .mockRejectedValue(new BadRequestException('Invalid note ID format'));
-
-      await expect(
-        notesController.update(mockCurrentUser, noteId, updateNoteInput),
-      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw a NotFoundException if note not found', async () => {
+      const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
-      const updateNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
 
       jest
         .spyOn(notesService, 'update')
         .mockRejectedValue(new NotFoundException('Note not found'));
 
       await expect(
-        notesController.update(mockCurrentUser, noteId, updateNoteInput),
-      ).rejects.toThrow(NotFoundException);
+        notesController.update(currentUser, noteId, { title, content }),
+      ).rejects.toThrow(new NotFoundException('Note not found'));
+      expect(notesService.update).toHaveBeenCalledWith(
+        noteId,
+        { title, content },
+        currentUser.id,
+      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a note and return it', async () => {
+    it('should remove a note', async () => {
+      const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
-      const deletedNote = generateMockNote({ _id: noteId });
+      const deletedNote = generateNote({ _id: noteId });
 
       jest.spyOn(notesService, 'remove').mockResolvedValue(deletedNote as any);
 
-      const result = await notesController.remove(mockCurrentUser, noteId);
+      const result = await notesController.remove(currentUser, noteId);
 
       expect(result).toEqual(deletedNote);
-      expect(mockNotesService.remove).toHaveBeenCalledWith(
-        noteId,
-        mockCurrentUser.id,
-      );
+      expect(notesService.remove).toHaveBeenCalledWith(noteId, currentUser.id);
     });
 
-    it('should throw a BadRequestException if ID is invalid', async () => {
-      const noteId = faker.string.alphanumeric(10);
-
-      jest
-        .spyOn(notesService, 'remove')
-        .mockRejectedValue(new BadRequestException('Invalid note ID format'));
-
-      await expect(
-        notesController.remove(mockCurrentUser, noteId),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw a NotFoundException if note not found', async () => {
+    it('should throw a NotFoundException if note is not found', async () => {
+      const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
 
       jest
         .spyOn(notesService, 'remove')
         .mockRejectedValue(new NotFoundException('Note not found'));
 
-      await expect(
-        notesController.remove(mockCurrentUser, noteId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(notesController.remove(currentUser, noteId)).rejects.toThrow(
+        new NotFoundException('Note not found'),
+      );
+      expect(notesService.remove).toHaveBeenCalledWith(noteId, currentUser.id);
     });
   });
 });

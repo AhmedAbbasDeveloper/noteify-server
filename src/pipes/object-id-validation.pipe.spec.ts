@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
 
-import { ObjectIdValidationPipe } from './object-id-validation.pipe';
+import { ObjectIdValidationPipe } from '@/pipes/object-id-validation.pipe';
 
 describe('ObjectIdValidationPipe', () => {
   let pipe: ObjectIdValidationPipe;

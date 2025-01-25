@@ -1,5 +1,5 @@
 # Development Stage
-FROM node:20-alpine AS development
+FROM node:22-alpine AS development
 
 RUN npm install -g pnpm
 
@@ -14,7 +14,7 @@ COPY --chown=node:node . .
 USER node
 
 # Build Stage
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 RUN npm install -g pnpm
 
@@ -28,7 +28,7 @@ COPY --chown=node:node . .
 RUN pnpm run build
 
 # Production Stage
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 RUN npm install -g pnpm
 

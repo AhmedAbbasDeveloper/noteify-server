@@ -8,14 +8,14 @@ import { AuthModule } from '@/auth/auth.module';
 import { NotesModule } from '@/notes/notes.module';
 import { UsersModule } from '@/users/users.module';
 
-mongoose.plugin(toJson);
+mongoose.plugin(toJson as Parameters<typeof mongoose.plugin>[0]);
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('DATABASE_URL'),
       }),
       inject: [ConfigService],
