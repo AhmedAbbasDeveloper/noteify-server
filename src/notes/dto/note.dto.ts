@@ -21,14 +21,14 @@ class AtLeastOneNonEmptyConstraint implements ValidatorConstraintInterface {
 }
 
 export class NoteDto {
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsDefined({ message: 'Title must be provided' })
+  @Transform(({ value }: { value: string }) => value.trim())
   @IsString()
+  @IsDefined({ message: 'Title must be provided' })
   title: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsDefined({ message: 'Content must be provided' })
+  @Transform(({ value }: { value: string }) => value.trim())
   @IsString()
+  @IsDefined({ message: 'Content must be provided' })
   content: string;
 
   @Validate(AtLeastOneNonEmptyConstraint)

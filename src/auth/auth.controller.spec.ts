@@ -5,39 +5,18 @@ import { Types } from 'mongoose';
 
 import { AuthController } from '@/auth/auth.controller';
 import { AuthService } from '@/auth/auth.service';
-import { AccessTokenDto } from '@/auth/dto/access-token.dto';
-import { CreateUserDto } from '@/users/dto/create-user.dto';
+import { UserDocument } from '@/users/schemas/user.schema';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
 
-  const mockAuthService = {
-    login: jest.fn(),
-    register: jest.fn(),
-    validateUser: jest.fn(),
-  };
-
-  const mockCurrentUser = {
-    _id: new Types.ObjectId().toString(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    email: faker.internet.email(),
-  };
-
-  const accessToken: AccessTokenDto = {
-    access_token: faker.string.alphanumeric(32),
-  };
+  const mockAuthService = { login: jest.fn(), register: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
-        },
-      ],
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
@@ -49,48 +28,65 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should return an access token for a valid user', async () => {
-      jest.spyOn(authService, 'login').mockReturnValue(accessToken as any);
+    it('should return an access token', () => {
+      const user = {
+        _id: new Types.ObjectId(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+      } as UserDocument;
+      const token = faker.string.alphanumeric(32);
 
-      const result = await authController.login(mockCurrentUser as any);
+      jest.spyOn(authService, 'login').mockReturnValue({ access_token: token });
 
-      expect(result).toEqual(accessToken);
-      expect(mockAuthService.login).toHaveBeenCalledWith(mockCurrentUser);
+      const result = authController.login(user);
+
+      expect(result).toEqual({ access_token: token });
+      expect(authService.login).toHaveBeenCalledWith(user);
     });
   });
 
   describe('register', () => {
     it('should register a new user and return an access token', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const token = faker.string.alphanumeric(32);
 
-      jest.spyOn(authService, 'register').mockReturnValue(accessToken as any);
+      jest
+        .spyOn(authService, 'register')
+        .mockResolvedValue({ access_token: token });
 
-      const result = await authController.register(createUserInput);
+      const result = await authController.register({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
 
-      expect(result).toEqual(accessToken);
-      expect(mockAuthService.register).toHaveBeenCalledWith(createUserInput);
+      expect(result).toEqual({ access_token: token });
+      expect(authService.register).toHaveBeenCalledWith({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
     });
 
-    it('should throw a BadRequestException if registration fails', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
+    it('should throw a BadRequestException if the email is already taken', async () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
 
       jest
         .spyOn(authService, 'register')
         .mockRejectedValue(new BadRequestException('Email already exists'));
 
-      await expect(authController.register(createUserInput)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        authController.register({ firstName, lastName, email, password }),
+      ).rejects.toThrow(new BadRequestException('Email already exists'));
     });
   });
 });

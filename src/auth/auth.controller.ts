@@ -13,9 +13,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(
-    @CurrentUser() currentUser: UserDocument,
-  ): Promise<AccessTokenDto> {
+  login(@CurrentUser() currentUser: UserDocument): AccessTokenDto {
     return this.authService.login(currentUser);
   }
 

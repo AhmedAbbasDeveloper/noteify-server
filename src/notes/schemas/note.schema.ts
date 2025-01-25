@@ -6,10 +6,10 @@ export type NoteDocument = HydratedDocument<Note>;
 @Schema({ timestamps: true })
 export class Note {
   @Prop()
-  title?: string;
+  title: string;
 
   @Prop()
-  content?: string;
+  content: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   creatorId: Types.ObjectId;
