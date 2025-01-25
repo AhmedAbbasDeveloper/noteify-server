@@ -1,25 +1,24 @@
 import { faker } from '@faker-js/faker';
+import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 
-import { NoteDto } from '@/notes/dto/note.dto';
 import { NotesService } from '@/notes/notes.service';
 import { Note, NoteDocument } from '@/notes/schemas/note.schema';
-import { NotFoundException } from '@nestjs/common';
 
 describe('NotesService', () => {
   let notesService: NotesService;
   let noteModel: Model<NoteDocument>;
 
-  const mockNoteModel: Partial<Model<NoteDocument>> = {
+  const mockNoteModel = {
     find: jest.fn(),
     create: jest.fn(),
     findOneAndUpdate: jest.fn(),
     findOneAndDelete: jest.fn(),
   };
 
-  const generateMockNote = (overrides = {}) => ({
+  const generateNote = (overrides = {}) => ({
     _id: new Types.ObjectId(),
     title: faker.lorem.words(),
     content: faker.lorem.words(),
@@ -31,10 +30,7 @@ describe('NotesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotesService,
-        {
-          provide: getModelToken(Note.name),
-          useValue: mockNoteModel,
-        },
+        { provide: getModelToken(Note.name), useValue: mockNoteModel },
       ],
     }).compile();
 
@@ -47,9 +43,9 @@ describe('NotesService', () => {
   });
 
   describe('findAllByUserId', () => {
-    it('should return an array of notes for a given creator ID', async () => {
+    it('should return all notes for a user', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const foundNotes = [generateMockNote({ creatorId })];
+      const foundNotes = [generateNote({ creatorId })];
 
       jest.spyOn(noteModel, 'find').mockReturnValue({
         sort: jest.fn().mockResolvedValue(foundNotes),
@@ -63,176 +59,81 @@ describe('NotesService', () => {
   });
 
   describe('create', () => {
-    it('should create a note with both title and content', async () => {
+    it('should create a new note', async () => {
       const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
-      const createdNote = { ...createNoteInput, creatorId };
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
+      const createdNote = generateNote({ title, content, creatorId });
 
-      jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
+      jest.spyOn(noteModel, 'create').mockResolvedValue(createdNote as any);
 
-      const result = await notesService.create(createNoteInput, creatorId);
+      const result = await notesService.create({ title, content }, creatorId);
 
       expect(result).toEqual(createdNote);
-      expect(noteModel.create).toHaveBeenCalledWith(createdNote);
-    });
-
-    it('should create a note with only title', async () => {
-      const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: '',
-      };
-      const createdNote = { ...createNoteInput, creatorId };
-
-      jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
-
-      const result = await notesService.create(createNoteInput, creatorId);
-
-      expect(result).toEqual(createdNote);
-      expect(noteModel.create).toHaveBeenCalledWith(createdNote);
-    });
-
-    it('should create a note with only content', async () => {
-      const creatorId = new Types.ObjectId().toString();
-      const createNoteInput: NoteDto = {
-        title: '',
-        content: faker.lorem.words(),
-      };
-      const createdNote = { ...createNoteInput, creatorId };
-
-      jest.spyOn(noteModel, 'create').mockResolvedValueOnce(createdNote as any);
-
-      const result = await notesService.create(createNoteInput, creatorId);
-
-      expect(result).toEqual(createdNote);
-      expect(noteModel.create).toHaveBeenCalledWith(createdNote);
+      expect(noteModel.create).toHaveBeenCalledWith({
+        title,
+        content,
+        creatorId,
+      });
     });
   });
 
   describe('update', () => {
-    describe('valid ID scenarios', () => {
-      it('should update a note with both title and content', async () => {
-        const noteId = new Types.ObjectId().toString();
-        const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = {
-          title: faker.lorem.words(),
-          content: faker.lorem.words(),
-        };
-        const updatedNote = generateMockNote({
-          ...updateNoteInput,
-          creatorId,
-          _id: noteId,
-        });
-
-        jest
-          .spyOn(noteModel, 'findOneAndUpdate')
-          .mockResolvedValueOnce(updatedNote);
-
-        const result = await notesService.update(
-          noteId,
-          updateNoteInput,
-          creatorId,
-        );
-
-        expect(result).toEqual(updatedNote);
-        expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
-          { _id: noteId, creatorId },
-          updateNoteInput,
-          { new: true },
-        );
-      });
-
-      it('should update a note with only a title', async () => {
-        const noteId = new Types.ObjectId().toString();
-        const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = {
-          title: faker.lorem.words(),
-          content: '',
-        };
-        const updatedNote = generateMockNote({
-          ...updateNoteInput,
-          creatorId,
-          _id: noteId,
-        });
-
-        jest
-          .spyOn(noteModel, 'findOneAndUpdate')
-          .mockResolvedValueOnce(updatedNote);
-
-        const result = await notesService.update(
-          noteId,
-          updateNoteInput,
-          creatorId,
-        );
-
-        expect(result).toEqual(updatedNote);
-        expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
-          { _id: noteId, creatorId },
-          updateNoteInput,
-          { new: true },
-        );
-      });
-
-      it('should update a note with only content', async () => {
-        const noteId = new Types.ObjectId().toString();
-        const creatorId = new Types.ObjectId().toString();
-        const updateNoteInput: NoteDto = {
-          title: '',
-          content: faker.lorem.words(),
-        };
-        const updatedNote = generateMockNote({
-          ...updateNoteInput,
-          creatorId,
-          _id: noteId,
-        });
-
-        jest
-          .spyOn(noteModel, 'findOneAndUpdate')
-          .mockResolvedValueOnce(updatedNote);
-
-        const result = await notesService.update(
-          noteId,
-          updateNoteInput,
-          creatorId,
-        );
-
-        expect(result).toEqual(updatedNote);
-        expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
-          { _id: noteId, creatorId },
-          updateNoteInput,
-          { new: true },
-        );
-      });
-    });
-
-    it('should throw a NotFoundException if note not found', async () => {
+    it('should update an existing note', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
-      const updateNoteInput: NoteDto = {
-        title: faker.lorem.words(),
-        content: faker.lorem.words(),
-      };
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
+      const updatedNote = generateNote({
+        _id: noteId,
+        title,
+        content,
+        creatorId,
+      });
 
-      jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValueOnce(null);
+      jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(updatedNote);
+
+      const result = await notesService.update(
+        noteId,
+        { title, content },
+        creatorId,
+      );
+
+      expect(result).toEqual(updatedNote);
+      expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: noteId, creatorId },
+        { title, content },
+        { new: true },
+      );
+    });
+
+    it('should throw a NotFoundException if note is not found', async () => {
+      const noteId = new Types.ObjectId().toString();
+      const creatorId = new Types.ObjectId().toString();
+      const title = faker.lorem.words();
+      const content = faker.lorem.words();
+
+      jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(null);
 
       await expect(
-        notesService.update(noteId, updateNoteInput, creatorId),
-      ).rejects.toThrow(NotFoundException);
+        notesService.update(noteId, { title, content }, creatorId),
+      ).rejects.toThrow(new NotFoundException('Note not found'));
+
+      expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: noteId, creatorId },
+        { title, content },
+        { new: true },
+      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a note by ID', async () => {
+    it('should remove a note', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
-      const deletedNote = generateMockNote({ _id: noteId, creatorId });
+      const deletedNote = generateNote({ _id: noteId, creatorId });
 
-      jest
-        .spyOn(noteModel, 'findOneAndDelete')
-        .mockResolvedValueOnce(deletedNote);
+      jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(deletedNote);
 
       const result = await notesService.remove(noteId, creatorId);
 
@@ -243,15 +144,20 @@ describe('NotesService', () => {
       });
     });
 
-    it('should throw a NotFoundException if note not found', async () => {
+    it('should throw a NotFoundException if note is not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
 
-      jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValueOnce(null);
+      jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(null);
 
       await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
-        NotFoundException,
+        new NotFoundException('Note not found'),
       );
+
+      expect(noteModel.findOneAndDelete).toHaveBeenCalledWith({
+        _id: noteId,
+        creatorId,
+      });
     });
   });
 });

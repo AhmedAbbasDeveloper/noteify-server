@@ -6,38 +6,28 @@ import { compare, hash } from 'bcryptjs';
 import { Types } from 'mongoose';
 
 import { AuthService } from '@/auth/auth.service';
-import { CreateUserDto } from '@/users/dto/create-user.dto';
+import { UserDocument } from '@/users/schemas/user.schema';
 import { UsersService } from '@/users/users.service';
 
-jest.mock('bcryptjs', () => ({
-  compare: jest.fn(),
-  hash: jest.fn(),
-}));
+jest.mock('bcryptjs', () => ({ hash: jest.fn(), compare: jest.fn() }));
 
 describe('AuthService', () => {
   let authService: AuthService;
   let jwtService: JwtService;
   let usersService: UsersService;
 
-  const mockUsersService = {
-    findOneByEmail: jest.fn(),
-    create: jest.fn(),
-  };
+  const mockJwtService = { sign: jest.fn() };
+  const mockUsersService = { findOneByEmail: jest.fn(), create: jest.fn() };
 
-  const mockJwtService = {
-    sign: jest.fn(),
-  };
-
-  const token = faker.string.alphanumeric(32);
-
-  const generateUser = (overrides = {}) => ({
-    _id: new Types.ObjectId(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    ...overrides,
-  });
+  const generateUser = (overrides = {}) =>
+    ({
+      _id: new Types.ObjectId(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      ...overrides,
+    }) as UserDocument;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,8 +39,8 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
     jwtService = module.get<JwtService>(JwtService);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   afterEach(() => {
@@ -58,15 +48,13 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('should return a user if credentials are valid', async () => {
+    it('should return user for valid credentials', async () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
       const foundUser = generateUser({ email, password });
 
-      jest
-        .spyOn(usersService, 'findOneByEmail')
-        .mockResolvedValueOnce(foundUser as any);
-      (compare as jest.Mock).mockResolvedValueOnce(true);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValue(foundUser);
+      (compare as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.validateUser(email, password);
 
@@ -74,11 +62,11 @@ describe('AuthService', () => {
       expect(usersService.findOneByEmail).toHaveBeenCalledWith(email);
     });
 
-    it('should return null if user is not found', async () => {
+    it('should return null when user is not found', async () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
 
-      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValueOnce(null);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValue(null);
 
       const result = await authService.validateUser(email, password);
 
@@ -86,15 +74,13 @@ describe('AuthService', () => {
       expect(usersService.findOneByEmail).toHaveBeenCalledWith(email);
     });
 
-    it('should return null if password is invalid', async () => {
+    it('should return null for invalid credentials', async () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
       const foundUser = generateUser({ email });
 
-      jest
-        .spyOn(usersService, 'findOneByEmail')
-        .mockResolvedValueOnce(foundUser as any);
-      (compare as jest.Mock).mockResolvedValueOnce(false);
+      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValue(foundUser);
+      (compare as jest.Mock).mockResolvedValue(false);
 
       const result = await authService.validateUser(email, password);
 
@@ -104,72 +90,83 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return a valid access token', async () => {
+    it('should return an access token', () => {
       const user = generateUser();
-      const payload = { sub: user._id, email: user.email };
+      const token = faker.string.alphanumeric(32);
 
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const result = await authService.login(user as any);
+      const result = authService.login(user);
 
       expect(result).toEqual({ access_token: token });
-      expect(jwtService.sign).toHaveBeenCalledWith(payload);
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: user._id,
+        email: user.email,
+      });
     });
   });
 
   describe('register', () => {
     it('should register a new user and return an access token', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
-      const hashedPassword = await hash(createUserInput.password, 10);
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = `hashed-${password}`;
       const createdUser = generateUser({
-        ...createUserInput,
+        firstName,
+        lastName,
+        email,
         password: hashedPassword,
       });
+      const token = faker.string.alphanumeric(32);
 
-      jest
-        .spyOn(usersService, 'create')
-        .mockResolvedValueOnce(createdUser as any);
-      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      (hash as jest.Mock).mockResolvedValue(hashedPassword);
+      jest.spyOn(usersService, 'create').mockResolvedValue(createdUser);
+      jest.spyOn(authService, 'login').mockReturnValue({ access_token: token });
 
-      const result = await authService.register(createUserInput);
+      const result = await authService.register({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
 
       expect(result).toEqual({ access_token: token });
+      expect(hash).toHaveBeenCalledWith(password, 10);
       expect(usersService.create).toHaveBeenCalledWith({
-        ...createUserInput,
+        firstName,
+        lastName,
+        email,
         password: hashedPassword,
       });
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        sub: createdUser._id,
-        email: createdUser.email,
-      });
+      expect(authService.login).toHaveBeenCalledWith(createdUser);
     });
 
     it('should throw a ConflictException if user already exists', async () => {
-      const createUserInput: CreateUserDto = {
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      };
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = `hashed-${password}`;
+      const errorMessage =
+        'An account with this email already exists. Please log in or use a different email to register.';
+      const conflictError = new ConflictException(errorMessage);
 
-      jest
-        .spyOn(usersService, 'create')
-        .mockRejectedValueOnce(
-          new ConflictException('User with this email already exists.'),
-        );
+      (hash as jest.Mock).mockResolvedValue(hashedPassword);
+      jest.spyOn(usersService, 'create').mockRejectedValue(conflictError);
+      jest.spyOn(authService, 'login');
 
-      await expect(authService.register(createUserInput)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(
+        authService.register({ firstName, lastName, email, password }),
+      ).rejects.toThrow(conflictError);
       expect(usersService.create).toHaveBeenCalledWith({
-        ...createUserInput,
-        password: await hash(createUserInput.password, 10),
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
       });
+      expect(authService.login).not.toHaveBeenCalled();
     });
   });
 });

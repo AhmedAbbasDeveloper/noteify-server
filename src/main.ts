@@ -10,12 +10,21 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
-      forbidNonWhitelisted: true,
-      transform: true,
       whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
-  await app.listen(app.get(ConfigService).get<number>('PORT'));
+
+  const port = app.get(ConfigService).get<number>('PORT');
+  if (!port) {
+    throw new Error('PORT is not defined');
+  }
+
+  await app.listen(port);
 }
 
-bootstrap();
+void bootstrap();
