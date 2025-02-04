@@ -6,16 +6,12 @@ services:
     command: pnpm run start:dev
     depends_on:
       - mongodb
-    env_file:
-      - .env
     ports:
       - ${PORT}:${PORT}
     volumes:
       - .:/usr/src/app
 
   mongodb:
-    env_file:
-      - .env
     image: mongo
     ports:
       - ${MONGO_PORT}:${MONGO_PORT}
