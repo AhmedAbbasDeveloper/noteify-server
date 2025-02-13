@@ -1,26 +1,24 @@
-# Development Stage
-FROM node:22-alpine AS development
-
-RUN npm install -g pnpm
+# Base Stage
+FROM node:22-alpine AS base
 
 WORKDIR /usr/src/app
 
+RUN npm install -g pnpm
+
+# Development Stage
+FROM base AS development
 COPY --chown=node:node package.json pnpm-lock.yaml ./
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 COPY --chown=node:node . .
 
 USER node
 
 # Build Stage
-FROM node:22-alpine AS build
-
-RUN npm install -g pnpm
-
-WORKDIR /usr/src/app
-
+FROM base AS build
 COPY --chown=node:node package.json pnpm-lock.yaml ./
+
 COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
 
 COPY --chown=node:node . .
@@ -28,13 +26,12 @@ COPY --chown=node:node . .
 RUN pnpm run build
 
 # Production Stage
-FROM node:22-alpine AS production
+FROM base AS production
 
-RUN npm install -g pnpm
-
-WORKDIR /usr/src/app
+ENV NODE_ENV=production
 
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
-CMD [ "node", "dist/main.js" ]
+CMD ["node", "dist/main.js"]

@@ -8,27 +8,27 @@ dist
 .DS_Store
 
 # Tests
-src/**/*.test.ts
+src/**/*.spec.ts
 coverage
 
 # Environment variables
 .env
 
-# Markdown
+# Documentation
 *.md
 
-# Git
+# Git-related files
 .git
 .gitignore
 
-# Docker and Compose
+# Docker files 
 Dockerfile
 docker-compose.yaml
 
-# Linting and formatting
-.eslintrc.js
+# Linting and formatting configs
+.eslint.config.mjs
 .prettierrc
 .prettierignore
 
-# Deployment
+# Deployment configurations
 fly.toml

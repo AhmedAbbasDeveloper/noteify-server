@@ -6,10 +6,15 @@ services:
     command: pnpm run start:dev
     depends_on:
       - mongodb
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - ${PORT}:${PORT}
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
 
   mongodb:
     image: mongo
