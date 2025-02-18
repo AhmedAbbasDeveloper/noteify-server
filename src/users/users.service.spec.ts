@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { ConflictException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { AlreadyInUseError } from 'common-errors';
 import { Model, Types } from 'mongoose';
 
 import { User, UserDocument } from '@/users/schemas/user.schema';
@@ -103,7 +103,7 @@ describe('UsersService', () => {
       });
     });
 
-    it('should throw ConflictException if email already exists', async () => {
+    it('should throw an AlreadyInUseError if user already exists', async () => {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const email = faker.internet.email();
@@ -115,11 +115,7 @@ describe('UsersService', () => {
 
       await expect(
         usersService.create({ firstName, lastName, email, password }),
-      ).rejects.toThrow(
-        new ConflictException(
-          'An account with this email already exists. Please log in or use a different email to register.',
-        ),
-      );
+      ).rejects.toThrow(new AlreadyInUseError('User'));
       expect(userModel.exists).toHaveBeenCalledWith({ email });
       expect(userModel.create).not.toHaveBeenCalled();
     });

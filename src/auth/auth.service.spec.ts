@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { compare, hash } from 'bcryptjs';
+import { AlreadyInUseError } from 'common-errors';
 import { Types } from 'mongoose';
 
 import { AuthService } from '@/auth/auth.service';
@@ -143,15 +143,13 @@ describe('AuthService', () => {
       expect(authService.login).toHaveBeenCalledWith(createdUser);
     });
 
-    it('should throw a ConflictException if user already exists', async () => {
+    it('should throw an AlreadyInUseError if user already exists', async () => {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const email = faker.internet.email();
       const password = faker.internet.password();
       const hashedPassword = `hashed-${password}`;
-      const errorMessage =
-        'An account with this email already exists. Please log in or use a different email to register.';
-      const conflictError = new ConflictException(errorMessage);
+      const conflictError = new AlreadyInUseError('User');
 
       (hash as jest.Mock).mockResolvedValue(hashedPassword);
       jest.spyOn(usersService, 'create').mockRejectedValue(conflictError);

@@ -44,6 +44,9 @@ importers:
       class-validator-password-check:
         specifier: ^1.0.8
         version: 1.0.8
+      common-errors:
+        specifier: ^1.2.0
+        version: 1.2.0
       mongoose:
         specifier: ^8.10.1
         version: 8.10.1
@@ -90,6 +93,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/common-errors':
+        specifier: ^1.0.5
+        version: 1.0.5
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
@@ -1019,6 +1025,9 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/common-errors@1.0.5':
+    resolution: {integrity: sha512-FVC2M7m3idccaLPRSy8DfH4riQB8VXoPTSCjFRGWRjcgSTnbaQ4/U+Cv+iwgC1Qd9E3/4MpCtiqhZnI1jvOqrA==}
+
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -1623,6 +1632,10 @@ packages:
   comment-json@4.2.5:
     resolution: {integrity: sha512-bKw/r35jR3HGt5PEPm1ljsQQGyCrR8sFGNiN5L+ykDHdpO8Smxkrkla9Yi6NkQyUrb8V54PGhfMs6NrIwtxtdw==}
     engines: {node: '>= 6'}
+
+  common-errors@1.2.0:
+    resolution: {integrity: sha512-HtLF1V6LRACyueMEs+MLwf++1Q7cJLC0FFVStFErYZXXCNuTyVwXp67MTn7Mf7+lAaA5HfUe4cREPTwo0LAXkg==}
+    engines: {node: '>=0.8'}
 
   component-emitter@1.3.1:
     resolution: {integrity: sha512-T0+barUSQRTUQASh8bx02dl+DhF54GtIDY13Y3m9oWTklKbb3Wv974meRpeZ3lp1JpLVECWWNHC4vaG2XHXouQ==}
@@ -4658,6 +4671,10 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 22.13.4
 
+  '@types/common-errors@1.0.5':
+    dependencies:
+      '@types/express': 5.0.0
+
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 22.13.4
@@ -5392,6 +5409,8 @@ snapshots:
       esprima: 4.0.1
       has-own-prop: 2.0.0
       repeat-string: 1.6.1
+
+  common-errors@1.2.0: {}
 
   component-emitter@1.3.1: {}
 

@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { AlreadyInUseError } from 'common-errors';
 import { Types } from 'mongoose';
 
 import { AuthController } from '@/auth/auth.controller';
@@ -82,11 +83,15 @@ describe('AuthController', () => {
 
       jest
         .spyOn(authService, 'register')
-        .mockRejectedValue(new BadRequestException('Email already exists'));
+        .mockRejectedValue(new AlreadyInUseError('User'));
 
       await expect(
         authController.register({ firstName, lastName, email, password }),
-      ).rejects.toThrow(new BadRequestException('Email already exists'));
+      ).rejects.toThrow(
+        new BadRequestException(
+          'An account with this email already exists. Please log in or use a different email to register.',
+        ),
+      );
     });
   });
 });

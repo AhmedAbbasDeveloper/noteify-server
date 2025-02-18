@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { NotFoundError } from 'common-errors';
 import { Model } from 'mongoose';
 
 import { NoteDto } from '@/notes/dto/note.dto';
@@ -34,7 +35,7 @@ export class NotesService {
     );
 
     if (!updatedNote) {
-      throw new NotFoundException('Note not found');
+      throw new NotFoundError('Note');
     }
 
     return updatedNote;
@@ -47,7 +48,7 @@ export class NotesService {
     });
 
     if (!deletedNote) {
-      throw new NotFoundException('Note not found');
+      throw new NotFoundError('Note');
     }
 
     return deletedNote;

@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundError } from 'common-errors';
 import { Model, Types } from 'mongoose';
 
 import { NotesService } from '@/notes/notes.service';
@@ -107,7 +107,7 @@ describe('NotesService', () => {
       );
     });
 
-    it('should throw a NotFoundException if note is not found', async () => {
+    it('should throw a NotFoundError if note is not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
       const title = faker.lorem.words();
@@ -117,7 +117,7 @@ describe('NotesService', () => {
 
       await expect(
         notesService.update(noteId, { title, content }, creatorId),
-      ).rejects.toThrow(new NotFoundException('Note not found'));
+      ).rejects.toThrow(new NotFoundError('Note'));
 
       expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: noteId, creatorId },
@@ -144,14 +144,14 @@ describe('NotesService', () => {
       });
     });
 
-    it('should throw a NotFoundException if note is not found', async () => {
+    it('should throw a NotFoundError if note is not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
 
       jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(null);
 
       await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
-        new NotFoundException('Note not found'),
+        new NotFoundError('Note'),
       );
 
       expect(noteModel.findOneAndDelete).toHaveBeenCalledWith({

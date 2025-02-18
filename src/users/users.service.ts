@@ -1,5 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { AlreadyInUseError } from 'common-errors';
 import { Model } from 'mongoose';
 
 import { CreateUserDto } from '@/users/dto/create-user.dto';
@@ -23,9 +24,7 @@ export class UsersService {
   }: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userModel.exists({ email });
     if (existingUser) {
-      throw new ConflictException(
-        'An account with this email already exists. Please log in or use a different email to register.',
-      );
+      throw new AlreadyInUseError('User');
     }
 
     return this.userModel.create({

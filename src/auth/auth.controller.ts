@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AlreadyInUseError } from 'common-errors';
 
 import { AuthService } from '@/auth/auth.service';
 import { AccessTokenDto } from '@/auth/dto/access-token.dto';
@@ -21,11 +28,20 @@ export class AuthController {
   async register(
     @Body() { firstName, lastName, email, password }: CreateUserDto,
   ): Promise<AccessTokenDto> {
-    return this.authService.register({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
+    try {
+      return await this.authService.register({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+    } catch (error) {
+      if (error instanceof AlreadyInUseError) {
+        throw new ConflictException(
+          'An account with this email already exists. Please log in or use a different email to register.',
+        );
+      }
+      throw error;
+    }
   }
 }

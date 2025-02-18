@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundError } from 'common-errors';
 import { Types } from 'mongoose';
 
 import { NotesController } from '@/notes/notes.controller';
@@ -120,7 +121,7 @@ describe('NotesController', () => {
 
       jest
         .spyOn(notesService, 'update')
-        .mockRejectedValue(new NotFoundException('Note not found'));
+        .mockRejectedValue(new NotFoundError('Note'));
 
       await expect(
         notesController.update(currentUser, noteId, { title, content }),
@@ -153,7 +154,7 @@ describe('NotesController', () => {
 
       jest
         .spyOn(notesService, 'remove')
-        .mockRejectedValue(new NotFoundException('Note not found'));
+        .mockRejectedValue(new NotFoundError('Note'));
 
       await expect(notesController.remove(currentUser, noteId)).rejects.toThrow(
         new NotFoundException('Note not found'),
