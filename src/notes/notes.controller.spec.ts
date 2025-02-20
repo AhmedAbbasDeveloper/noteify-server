@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundError } from 'common-errors';
 import { Types } from 'mongoose';
 
 import { NotesController } from '@/notes/notes.controller';
@@ -14,8 +13,8 @@ describe('NotesController', () => {
   const mockNotesService = {
     findAllByUserId: jest.fn(),
     create: jest.fn(),
-    update: jest.fn(),
-    remove: jest.fn(),
+    findOneAndUpdate: jest.fn(),
+    findOneAndDelete: jest.fn(),
   };
 
   const generateCurrentUser = () => ({
@@ -86,8 +85,8 @@ describe('NotesController', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update an existing note', async () => {
+  describe('findOneAndUpdate', () => {
+    it('should update a note', async () => {
       const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
       const title = faker.lorem.words();
@@ -98,15 +97,18 @@ describe('NotesController', () => {
         content,
       });
 
-      jest.spyOn(notesService, 'update').mockResolvedValue(updatedNote as any);
+      jest
+        .spyOn(notesService, 'findOneAndUpdate')
+        .mockResolvedValue(updatedNote as any);
 
-      const result = await notesController.update(currentUser, noteId, {
-        title,
-        content,
-      });
+      const result = await notesController.findOneAndUpdate(
+        currentUser,
+        noteId,
+        { title, content },
+      );
 
       expect(result).toEqual(updatedNote);
-      expect(notesService.update).toHaveBeenCalledWith(
+      expect(notesService.findOneAndUpdate).toHaveBeenCalledWith(
         noteId,
         { title, content },
         currentUser.id,
@@ -119,14 +121,15 @@ describe('NotesController', () => {
       const title = faker.lorem.words();
       const content = faker.lorem.words();
 
-      jest
-        .spyOn(notesService, 'update')
-        .mockRejectedValue(new NotFoundError('Note'));
+      jest.spyOn(notesService, 'findOneAndUpdate').mockResolvedValue(null);
 
       await expect(
-        notesController.update(currentUser, noteId, { title, content }),
+        notesController.findOneAndUpdate(currentUser, noteId, {
+          title,
+          content,
+        }),
       ).rejects.toThrow(new NotFoundException('Note not found'));
-      expect(notesService.update).toHaveBeenCalledWith(
+      expect(notesService.findOneAndUpdate).toHaveBeenCalledWith(
         noteId,
         { title, content },
         currentUser.id,
@@ -134,32 +137,41 @@ describe('NotesController', () => {
     });
   });
 
-  describe('remove', () => {
+  describe('findOneAndDelete', () => {
     it('should remove a note', async () => {
       const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
       const deletedNote = generateNote({ _id: noteId });
 
-      jest.spyOn(notesService, 'remove').mockResolvedValue(deletedNote as any);
+      jest
+        .spyOn(notesService, 'findOneAndDelete')
+        .mockResolvedValue(deletedNote as any);
 
-      const result = await notesController.remove(currentUser, noteId);
+      const result = await notesController.findOneAndDelete(
+        currentUser,
+        noteId,
+      );
 
       expect(result).toEqual(deletedNote);
-      expect(notesService.remove).toHaveBeenCalledWith(noteId, currentUser.id);
+      expect(notesService.findOneAndDelete).toHaveBeenCalledWith(
+        noteId,
+        currentUser.id,
+      );
     });
 
     it('should throw a NotFoundException if note is not found', async () => {
       const currentUser = generateCurrentUser();
       const noteId = new Types.ObjectId().toString();
 
-      jest
-        .spyOn(notesService, 'remove')
-        .mockRejectedValue(new NotFoundError('Note'));
+      jest.spyOn(notesService, 'findOneAndDelete').mockResolvedValue(null);
 
-      await expect(notesController.remove(currentUser, noteId)).rejects.toThrow(
-        new NotFoundException('Note not found'),
+      await expect(
+        notesController.findOneAndDelete(currentUser, noteId),
+      ).rejects.toThrow(new NotFoundException('Note not found'));
+      expect(notesService.findOneAndDelete).toHaveBeenCalledWith(
+        noteId,
+        currentUser.id,
       );
-      expect(notesService.remove).toHaveBeenCalledWith(noteId, currentUser.id);
     });
   });
 });

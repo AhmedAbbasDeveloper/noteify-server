@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundError } from 'common-errors';
 import { Model, Types } from 'mongoose';
 
 import { NotesService } from '@/notes/notes.service';
@@ -78,8 +77,8 @@ describe('NotesService', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update an existing note', async () => {
+  describe('findOneAndUpdate', () => {
+    it('should update a note', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
       const title = faker.lorem.words();
@@ -93,7 +92,7 @@ describe('NotesService', () => {
 
       jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(updatedNote);
 
-      const result = await notesService.update(
+      const result = await notesService.findOneAndUpdate(
         noteId,
         { title, content },
         creatorId,
@@ -107,7 +106,7 @@ describe('NotesService', () => {
       );
     });
 
-    it('should throw a NotFoundError if note is not found', async () => {
+    it('should return null if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
       const title = faker.lorem.words();
@@ -115,10 +114,13 @@ describe('NotesService', () => {
 
       jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(null);
 
-      await expect(
-        notesService.update(noteId, { title, content }, creatorId),
-      ).rejects.toThrow(new NotFoundError('Note'));
+      const result = await notesService.findOneAndUpdate(
+        noteId,
+        { title, content },
+        creatorId,
+      );
 
+      expect(result).toBeNull();
       expect(noteModel.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: noteId, creatorId },
         { title, content },
@@ -127,7 +129,7 @@ describe('NotesService', () => {
     });
   });
 
-  describe('remove', () => {
+  describe('findOneAndDelete', () => {
     it('should remove a note', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
@@ -135,7 +137,7 @@ describe('NotesService', () => {
 
       jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(deletedNote);
 
-      const result = await notesService.remove(noteId, creatorId);
+      const result = await notesService.findOneAndDelete(noteId, creatorId);
 
       expect(result).toEqual(deletedNote);
       expect(noteModel.findOneAndDelete).toHaveBeenCalledWith({
@@ -144,16 +146,15 @@ describe('NotesService', () => {
       });
     });
 
-    it('should throw a NotFoundError if note is not found', async () => {
+    it('should return null if note not found', async () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
 
       jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(null);
 
-      await expect(notesService.remove(noteId, creatorId)).rejects.toThrow(
-        new NotFoundError('Note'),
-      );
+      const result = await notesService.findOneAndDelete(noteId, creatorId);
 
+      expect(result).toBeNull();
       expect(noteModel.findOneAndDelete).toHaveBeenCalledWith({
         _id: noteId,
         creatorId,

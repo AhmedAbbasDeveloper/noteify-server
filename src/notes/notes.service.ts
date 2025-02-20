@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { NotFoundError } from 'common-errors';
 import { Model } from 'mongoose';
 
 import { NoteDto } from '@/notes/dto/note.dto';
@@ -23,34 +22,22 @@ export class NotesService {
     return this.noteModel.create({ title, content, creatorId });
   }
 
-  async update(
+  async findOneAndUpdate(
     id: string,
     { title, content }: NoteDto,
     creatorId: string,
-  ): Promise<NoteDocument> {
-    const updatedNote = await this.noteModel.findOneAndUpdate(
+  ): Promise<NoteDocument | null> {
+    return this.noteModel.findOneAndUpdate(
       { _id: id, creatorId },
       { title, content },
       { new: true },
     );
-
-    if (!updatedNote) {
-      throw new NotFoundError('Note');
-    }
-
-    return updatedNote;
   }
 
-  async remove(id: string, creatorId: string): Promise<NoteDocument> {
-    const deletedNote = await this.noteModel.findOneAndDelete({
-      _id: id,
-      creatorId,
-    });
-
-    if (!deletedNote) {
-      throw new NotFoundError('Note');
-    }
-
-    return deletedNote;
+  async findOneAndDelete(
+    id: string,
+    creatorId: string,
+  ): Promise<NoteDocument | null> {
+    return this.noteModel.findOneAndDelete({ _id: id, creatorId });
   }
 }

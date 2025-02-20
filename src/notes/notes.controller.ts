@@ -9,7 +9,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { NotFoundError } from 'common-errors';
 
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { CurrentUser } from '@/decorators/current-user.decorator';
@@ -42,38 +41,36 @@ export class NotesController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(
+  async findOneAndUpdate(
     @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() { title, content }: NoteDto,
   ): Promise<NoteDocument> {
-    try {
-      return await this.notesService.update(
-        id,
-        { title, content },
-        currentUser.id,
-      );
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        throw new NotFoundException('Note not found');
-      }
-      throw error;
+    const note = await this.notesService.findOneAndUpdate(
+      id,
+      { title, content },
+      currentUser.id,
+    );
+
+    if (!note) {
+      throw new NotFoundException('Note not found');
     }
+
+    return note;
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(
+  async findOneAndDelete(
     @CurrentUser() currentUser: CurrentUserDocument,
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<NoteDocument> {
-    try {
-      return await this.notesService.remove(id, currentUser.id);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        throw new NotFoundException('Note not found');
-      }
-      throw error;
+    const note = await this.notesService.findOneAndDelete(id, currentUser.id);
+
+    if (!note) {
+      throw new NotFoundException('Note not found');
     }
+
+    return note;
   }
 }
