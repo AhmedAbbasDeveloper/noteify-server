@@ -12,7 +12,7 @@ export class NotesService {
   ) {}
 
   async findAllByUserId(creatorId: string): Promise<NoteDocument[]> {
-    return this.noteModel.find({ creatorId }).sort({ updatedAt: -1 });
+    return this.noteModel.find({ creatorId }).sort({ updatedAt: -1 }).exec();
   }
 
   async create(
@@ -27,17 +27,19 @@ export class NotesService {
     { title, content }: NoteDto,
     creatorId: string,
   ): Promise<NoteDocument | null> {
-    return this.noteModel.findOneAndUpdate(
-      { _id: id, creatorId },
-      { title, content },
-      { new: true },
-    );
+    return this.noteModel
+      .findOneAndUpdate(
+        { _id: id, creatorId },
+        { title, content },
+        { new: true },
+      )
+      .exec();
   }
 
   async findOneAndDelete(
     id: string,
     creatorId: string,
   ): Promise<NoteDocument | null> {
-    return this.noteModel.findOneAndDelete({ _id: id, creatorId });
+    return this.noteModel.findOneAndDelete({ _id: id, creatorId }).exec();
   }
 }

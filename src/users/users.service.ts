@@ -13,7 +13,7 @@ export class UsersService {
   ) {}
 
   async findOneByEmail(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email });
+    return this.userModel.findOne({ email }).exec();
   }
 
   async create({
@@ -22,7 +22,7 @@ export class UsersService {
     email,
     password,
   }: CreateUserDto): Promise<UserDocument> {
-    const existingUser = await this.userModel.exists({ email });
+    const existingUser = await this.userModel.exists({ email }).exec();
     if (existingUser) {
       throw new AlreadyInUseError('User');
     }

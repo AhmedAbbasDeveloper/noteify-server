@@ -13,10 +13,9 @@ jest.mock('bcryptjs', () => ({ hash: jest.fn(), compare: jest.fn() }));
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let jwtService: JwtService;
-  let usersService: UsersService;
+  let jwtService: jest.Mocked<JwtService>;
+  let usersService: jest.Mocked<UsersService>;
 
-  const mockJwtService = { sign: jest.fn() };
   const mockUsersService = { findOneByEmail: jest.fn(), create: jest.fn() };
 
   const generateUser = (overrides = {}) =>
@@ -33,18 +32,18 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        JwtService,
         { provide: UsersService, useValue: mockUsersService },
-        { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    jwtService = module.get<JwtService>(JwtService);
-    usersService = module.get<UsersService>(UsersService);
+    jwtService = module.get<jest.Mocked<JwtService>>(JwtService);
+    usersService = module.get<jest.Mocked<UsersService>>(UsersService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('validateUser', () => {

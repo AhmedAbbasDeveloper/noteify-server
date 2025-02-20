@@ -8,11 +8,9 @@ import { JwtStrategy } from '@/auth/jwt.strategy';
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
 
-  const mockConfigService = { get: jest.fn() };
+  const mockConfigService = { get: jest.fn().mockReturnValue('test') };
 
   beforeEach(async () => {
-    mockConfigService.get.mockReturnValue('test');
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtStrategy,
@@ -24,7 +22,7 @@ describe('JwtStrategy', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('validate', () => {

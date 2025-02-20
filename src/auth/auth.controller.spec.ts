@@ -10,7 +10,7 @@ import { UserDocument } from '@/users/schemas/user.schema';
 
 describe('AuthController', () => {
   let authController: AuthController;
-  let authService: AuthService;
+  let authService: jest.Mocked<AuthService>;
 
   const mockAuthService = { login: jest.fn(), register: jest.fn() };
 
@@ -21,11 +21,11 @@ describe('AuthController', () => {
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
+    authService = module.get<jest.Mocked<AuthService>>(AuthService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('login', () => {

@@ -8,7 +8,7 @@ import { NotesService } from '@/notes/notes.service';
 
 describe('NotesController', () => {
   let notesController: NotesController;
-  let notesService: NotesService;
+  let notesService: jest.Mocked<NotesService>;
 
   const mockNotesService = {
     findAllByUserId: jest.fn(),
@@ -37,20 +37,25 @@ describe('NotesController', () => {
     }).compile();
 
     notesController = module.get<NotesController>(NotesController);
-    notesService = module.get<NotesService>(NotesService);
+    notesService = module.get<jest.Mocked<NotesService>>(NotesService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('findAllByUser', () => {
     it('should return an array of notes', async () => {
       const currentUser = generateCurrentUser();
       const foundNotes = [generateNote()];
+
       jest
         .spyOn(notesService, 'findAllByUserId')
-        .mockResolvedValue(foundNotes as any);
+        .mockResolvedValue(
+          foundNotes as unknown as ReturnType<
+            typeof notesService.findAllByUserId
+          >,
+        );
 
       const result = await notesController.findAllByUser(currentUser);
 
@@ -70,7 +75,11 @@ describe('NotesController', () => {
         creatorId: currentUser.id,
       });
 
-      jest.spyOn(notesService, 'create').mockResolvedValue(createdNote as any);
+      jest
+        .spyOn(notesService, 'create')
+        .mockResolvedValue(
+          createdNote as unknown as ReturnType<typeof notesService.create>,
+        );
 
       const result = await notesController.create(currentUser, {
         title,
@@ -99,7 +108,11 @@ describe('NotesController', () => {
 
       jest
         .spyOn(notesService, 'findOneAndUpdate')
-        .mockResolvedValue(updatedNote as any);
+        .mockResolvedValue(
+          updatedNote as unknown as ReturnType<
+            typeof notesService.findOneAndUpdate
+          >,
+        );
 
       const result = await notesController.findOneAndUpdate(
         currentUser,
@@ -145,7 +158,11 @@ describe('NotesController', () => {
 
       jest
         .spyOn(notesService, 'findOneAndDelete')
-        .mockResolvedValue(deletedNote as any);
+        .mockResolvedValue(
+          deletedNote as unknown as ReturnType<
+            typeof notesService.findOneAndDelete
+          >,
+        );
 
       const result = await notesController.findOneAndDelete(
         currentUser,

@@ -9,7 +9,7 @@ import { UserDocument } from '@/users/schemas/user.schema';
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
-  let authService: AuthService;
+  let authService: jest.Mocked<AuthService>;
 
   const mockAuthService = { validateUser: jest.fn() };
 
@@ -32,11 +32,11 @@ describe('LocalStrategy', () => {
     }).compile();
 
     localStrategy = module.get<LocalStrategy>(LocalStrategy);
-    authService = module.get<AuthService>(AuthService);
+    authService = module.get<jest.Mocked<AuthService>>(AuthService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('validate', () => {

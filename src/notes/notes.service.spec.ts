@@ -8,7 +8,7 @@ import { Note, NoteDocument } from '@/notes/schemas/note.schema';
 
 describe('NotesService', () => {
   let notesService: NotesService;
-  let noteModel: Model<NoteDocument>;
+  let noteModel: jest.Mocked<Model<NoteDocument>>;
 
   const mockNoteModel = {
     find: jest.fn(),
@@ -34,11 +34,13 @@ describe('NotesService', () => {
     }).compile();
 
     notesService = module.get<NotesService>(NotesService);
-    noteModel = module.get<Model<NoteDocument>>(getModelToken(Note.name));
+    noteModel = module.get<jest.Mocked<Model<NoteDocument>>>(
+      getModelToken(Note.name),
+    );
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('findAllByUserId', () => {
@@ -47,8 +49,10 @@ describe('NotesService', () => {
       const foundNotes = [generateNote({ creatorId })];
 
       jest.spyOn(noteModel, 'find').mockReturnValue({
-        sort: jest.fn().mockResolvedValue(foundNotes),
-      } as any);
+        sort: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(foundNotes),
+        }),
+      } as unknown as ReturnType<typeof noteModel.find>);
 
       const result = await notesService.findAllByUserId(creatorId);
 
@@ -64,7 +68,11 @@ describe('NotesService', () => {
       const content = faker.lorem.words();
       const createdNote = generateNote({ title, content, creatorId });
 
-      jest.spyOn(noteModel, 'create').mockResolvedValue(createdNote as any);
+      jest
+        .spyOn(noteModel, 'create')
+        .mockResolvedValue(
+          createdNote as unknown as ReturnType<typeof noteModel.create>,
+        );
 
       const result = await notesService.create({ title, content }, creatorId);
 
@@ -90,7 +98,9 @@ describe('NotesService', () => {
         creatorId,
       });
 
-      jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(updatedNote);
+      jest.spyOn(noteModel, 'findOneAndUpdate').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(updatedNote),
+      } as unknown as ReturnType<typeof noteModel.findOneAndUpdate>);
 
       const result = await notesService.findOneAndUpdate(
         noteId,
@@ -112,7 +122,9 @@ describe('NotesService', () => {
       const title = faker.lorem.words();
       const content = faker.lorem.words();
 
-      jest.spyOn(noteModel, 'findOneAndUpdate').mockResolvedValue(null);
+      jest.spyOn(noteModel, 'findOneAndUpdate').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as unknown as ReturnType<typeof noteModel.findOneAndUpdate>);
 
       const result = await notesService.findOneAndUpdate(
         noteId,
@@ -135,7 +147,9 @@ describe('NotesService', () => {
       const creatorId = new Types.ObjectId().toString();
       const deletedNote = generateNote({ _id: noteId, creatorId });
 
-      jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(deletedNote);
+      jest.spyOn(noteModel, 'findOneAndDelete').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(deletedNote),
+      } as unknown as ReturnType<typeof noteModel.findOneAndDelete>);
 
       const result = await notesService.findOneAndDelete(noteId, creatorId);
 
@@ -150,7 +164,9 @@ describe('NotesService', () => {
       const noteId = new Types.ObjectId().toString();
       const creatorId = new Types.ObjectId().toString();
 
-      jest.spyOn(noteModel, 'findOneAndDelete').mockResolvedValue(null);
+      jest.spyOn(noteModel, 'findOneAndDelete').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as unknown as ReturnType<typeof noteModel.findOneAndDelete>);
 
       const result = await notesService.findOneAndDelete(noteId, creatorId);
 

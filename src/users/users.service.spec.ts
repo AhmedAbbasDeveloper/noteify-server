@@ -9,7 +9,7 @@ import { UsersService } from '@/users/users.service';
 
 describe('UsersService', () => {
   let usersService: UsersService;
-  let userModel: Model<UserDocument>;
+  let userModel: jest.Mocked<Model<UserDocument>>;
 
   const mockUserModel = {
     findOne: jest.fn(),
@@ -36,11 +36,13 @@ describe('UsersService', () => {
     }).compile();
 
     usersService = module.get<UsersService>(UsersService);
-    userModel = module.get<Model<UserDocument>>(getModelToken(User.name));
+    userModel = module.get<jest.Mocked<Model<UserDocument>>>(
+      getModelToken(User.name),
+    );
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('findOneByEmail', () => {
@@ -48,7 +50,9 @@ describe('UsersService', () => {
       const email = faker.internet.email();
       const foundUser = generateUser({ email });
 
-      jest.spyOn(userModel, 'findOne').mockResolvedValue(foundUser);
+      jest.spyOn(userModel, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(foundUser),
+      } as unknown as ReturnType<typeof userModel.findOne>);
 
       const result = await usersService.findOneByEmail(email);
 
@@ -59,7 +63,9 @@ describe('UsersService', () => {
     it('should return null if user not found', async () => {
       const email = faker.internet.email();
 
-      jest.spyOn(userModel, 'findOne').mockResolvedValue(null);
+      jest.spyOn(userModel, 'findOne').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as unknown as ReturnType<typeof userModel.findOne>);
 
       const result = await usersService.findOneByEmail(email);
 
@@ -81,10 +87,14 @@ describe('UsersService', () => {
         password,
       });
 
-      jest.spyOn(userModel, 'exists').mockResolvedValue(null);
+      jest.spyOn(userModel, 'exists').mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      } as unknown as ReturnType<typeof userModel.exists>);
       jest
         .spyOn(userModel, 'create')
-        .mockImplementation(() => Promise.resolve(createdUser as any));
+        .mockResolvedValue(
+          createdUser as unknown as ReturnType<typeof userModel.create>,
+        );
 
       const result = await usersService.create({
         firstName,
@@ -109,9 +119,9 @@ describe('UsersService', () => {
       const email = faker.internet.email();
       const password = faker.internet.password();
 
-      jest
-        .spyOn(userModel, 'exists')
-        .mockResolvedValue({ _id: new Types.ObjectId() });
+      jest.spyOn(userModel, 'exists').mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ _id: new Types.ObjectId() }),
+      } as unknown as ReturnType<typeof userModel.exists>);
 
       await expect(
         usersService.create({ firstName, lastName, email, password }),
