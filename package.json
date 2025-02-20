@@ -30,6 +30,7 @@
     "class-validator": "^0.14.1",
     "class-validator-password-check": "^1.0.8",
     "common-errors": "^1.2.0",
+    "joi": "^17.13.3",
     "mongoose": "^8.10.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

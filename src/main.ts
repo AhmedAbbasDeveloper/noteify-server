@@ -13,18 +13,11 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
 
-  const port = app.get(ConfigService).get<number>('PORT');
-  if (!port) {
-    throw new Error('PORT is not defined');
-  }
-
-  await app.listen(port);
+  await app.listen(app.get(ConfigService).get<number>('PORT')!);
 }
 
 void bootstrap();
